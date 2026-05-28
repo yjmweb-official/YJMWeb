@@ -15,7 +15,9 @@ import {
   trackAddonToggle, 
   trackWhatsAppClick, 
   trackFunnelStep, 
-  trackFormInteraction 
+  trackFormInteraction,
+  trackBeginCheckout,
+  trackFormSubmit
 } from '../lib/analytics';
 
 const COUNTRIES = [
@@ -84,13 +86,15 @@ export default function CheckoutSection({ initialPackageId = 'business', onOrder
     }
   }, [initialPackageId]);
 
-  // Track checkout funnel step 1: checkout_viewed
+  // Track checkout funnel step 1: checkout_viewed and begin_checkout
   useEffect(() => {
     trackFunnelStep(1, 'checkout_viewed', { 
       package_id: selectedPackage.id,
       plan_id: selectedPlan.id,
       addons_count: selectedAddOnIds.length
     });
+    // Fire exact event requested
+    trackBeginCheckout(selectedPackage.id, selectedPlan.id);
   }, [selectedPackage.id, selectedPlan.id]);
 
   // Recalculate totals
@@ -241,6 +245,16 @@ _Please draft our mock layout review based on the details above!_`;
     
     // Track checkout submissions and funnel completions
     trackWhatsAppClick('checkout');
+    trackFormSubmit('checkout_form', {
+      brand_name: customer.restaurantName,
+      package_name: selectedPackage.name,
+      package_price: selectedPackage.priceSetup,
+      billing_plan: selectedPlan.id,
+      addons_count: selectedAddOnIds.length,
+      total_setup: sumTotal.setup,
+      total_monthly: sumTotal.monthly,
+      total_value: sumTotal.total
+    });
     trackFunnelStep(4, 'submit_order', {
       brand_name: customer.restaurantName,
       package_id: selectedPackage.id,

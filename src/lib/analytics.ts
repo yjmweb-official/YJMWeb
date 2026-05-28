@@ -1,4 +1,4 @@
-// Google Analytics 4 & Google Tag Manager tracking engine
+// Google Analytics 4 (GA4) & Google Tag Manager (GTM) Enterprise Tracking Engine
 declare global {
   interface Window {
     dataLayer: any[];
@@ -8,122 +8,167 @@ declare global {
 
 const MEASUREMENT_ID = 'G-QFY8QZW1BY';
 
-// Returns unified parameters for current state
+// Utility helper to gather marketing and traffic source query parameters (sessions/attribution)
+const getSessionSource = (): string => {
+  if (typeof window === 'undefined') return 'organic';
+  const urlParams = new URLSearchParams(window.location.search);
+  const utmSource = urlParams.get('utm_source');
+  const utmMedium = urlParams.get('utm_medium');
+  if (utmSource) {
+    return utmMedium ? `${utmSource} / ${utmMedium}` : utmSource;
+  }
+  if (document.referrer) {
+    try {
+      const refUrl = new URL(document.referrer);
+      if (refUrl.hostname.includes('google')) return 'google / organic';
+      if (refUrl.hostname.includes('facebook')) return 'facebook / referral';
+      if (refUrl.hostname.includes('instagram')) return 'instagram / referral';
+      if (refUrl.hostname.includes('linkedin')) return 'linkedin / referral';
+      return `${refUrl.hostname} / referral`;
+    } catch {
+      return 'referral';
+    }
+  }
+  return 'direct';
+};
+
+// Generates correct unified context mapping for both GA4 & GTM dataLayer parameters
 const getCurrentContext = () => {
   if (typeof window === 'undefined') {
     return {
-      page_title: '',
+      page_name: '',
       page_path: '',
       page_location: '',
-      device_info: 'desktop',
-      referrer: 'direct',
+      device_type: 'desktop',
+      referrer_source: 'direct',
+      session_source: 'direct'
     };
   }
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   return {
-    page_title: document.title,
-    page_path: window.location.pathname + window.location.hash,
+    page_name: document.title,
+    page_path: window.location.pathname + window.location.hash || '/',
     page_location: window.location.href,
-    device_info: isMobile ? 'mobile' : 'desktop',
-    referrer: document.referrer || 'direct',
+    device_type: isMobile ? 'mobile' : 'desktop',
+    referrer_source: document.referrer || 'direct',
+    session_source: getSessionSource()
   };
 };
 
 /**
- * Tracks a page view both with gtag configuration update and custom event tags.
+ * 1. SPA Dynamic Page Tracking System
+ * Updates document titles and sends correct page_view events ensuring GA4 routes separately.
  */
 export const trackPageView = (title: string, path: string) => {
   if (typeof window === 'undefined') return;
 
-  // Set document title first
+  // Set document title dynamically
   document.title = title;
 
   const currentTab = path.startsWith('/') ? path : `/${path}`;
   const gLocation = window.location.origin + currentTab;
+  const ctx = getCurrentContext();
 
-  // Set general gtag properties
+  // Set general global tracker properties
   if (window.gtag) {
     window.gtag('set', {
       page_title: title,
       page_path: currentTab,
       page_location: gLocation,
+      device_type: ctx.device_type,
+      referrer_source: ctx.referrer_source,
+      session_source: ctx.session_source
     });
 
-    // Fire config with page details manually to enforce real-time reporting separation
+    // Fire config manually to force separated real-time and standard reports
     window.gtag('config', MEASUREMENT_ID, {
       page_title: title,
       page_location: gLocation,
       page_path: currentTab,
+      device_type: ctx.device_type
     });
 
-    // Explicitly send page_view event for safety
+    // Fire an explicit manual page_view event for safety
     window.gtag('event', 'page_view', {
       page_title: title,
+      page_name: title,
       page_path: currentTab,
       page_location: gLocation,
-      send_to: MEASUREMENT_ID,
+      device_type: ctx.device_type,
+      referrer_source: ctx.referrer_source,
+      session_source: ctx.session_source,
+      send_to: MEASUREMENT_ID
     });
   }
 
-  // Push event specifically to Google Tag Manager compatible dataLayer
+  // Push to GTM compatible dataLayer architecture
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: 'page_view',
-    page_title: title,
+    page_name: title,
     page_path: currentTab,
     page_location: gLocation,
-    device_type: getCurrentContext().device_info,
-    referrer_source: getCurrentContext().referrer,
+    device_type: ctx.device_type,
+    referrer_source: ctx.referrer_source,
+    session_source: ctx.session_source,
     timestamp: new Date().toISOString()
   });
 };
 
 /**
- * Tracks WhatsApp click interactions across different components.
+ * 2. WhatsApp Click Tracking (Floating, Support, Checkout, Footer, etc.)
+ * Maps clicks instantly to custom events like floating_whatsapp_click or support_whatsapp_click.
  */
 export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'hero' | 'footer' | 'faq') => {
   if (typeof window === 'undefined') return;
 
   const ctx = getCurrentContext();
+  const clickEventName = `${buttonType}_whatsapp_click`;
 
-  // Send generic event to GA
   if (window.gtag) {
+    // Fire general whatsapp_clck with specific button_type properties
     window.gtag('event', 'whatsapp_click', {
       button_type: buttonType,
-      page_name: ctx.page_title,
+      page_name: ctx.page_name,
       page_path: ctx.page_path,
       page_location: ctx.page_location,
-      device_type: ctx.device_info,
-      referrer_source: ctx.referrer
+      device_type: ctx.device_type,
+      referrer_source: ctx.referrer_source,
+      session_source: ctx.session_source
     });
 
-    // Also send more specific events requested by user
-    const specificEventName = `${buttonType}_whatsapp_click`;
-    window.gtag('event', specificEventName, {
-      page_name: ctx.page_title,
+    // Fire exact custom events requested by user: floating_whatsapp_click, support_whatsapp_click, checkout_whatsapp_click
+    window.gtag('event', clickEventName, {
+      button_type: buttonType,
+      page_name: ctx.page_name,
       page_path: ctx.page_path,
       page_location: ctx.page_location,
+      device_type: ctx.device_type,
+      referrer_source: ctx.referrer_source,
+      session_source: ctx.session_source
     });
   }
 
-  // GTM dataLayer compatible structure
+  // Push to GTM structure
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: 'whatsapp_click',
     button_type: buttonType,
-    page_name: ctx.page_title,
+    page_name: ctx.page_name,
     page_path: ctx.page_path,
     page_location: ctx.page_location,
-    device_type: ctx.device_info,
-    referrer_source: ctx.referrer,
-    time_clicked: new Date().toISOString()
+    device_type: ctx.device_type,
+    referrer_source: ctx.referrer_source,
+    session_source: ctx.session_source,
+    time_clicked: new Date().toISOString(),
+    is_conversion: true
   });
 
-  // GTM triggers
+  // GTM trigger for the specific button event
   window.dataLayer.push({
-    event: `${buttonType}_whatsapp_click`,
+    event: clickEventName,
     button_type: buttonType,
-    page_name: ctx.page_title,
+    page_name: ctx.page_name,
     page_path: ctx.page_path,
     page_location: ctx.page_location,
     is_conversion: true
@@ -131,7 +176,8 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
 };
 
 /**
- * Tracks selection of different design and development packages.
+ * 3. Package Selection Custom Tracking
+ * Handles select_starter_package, select_business_package, select_premium_package
  */
 export const trackPackageSelection = (pkgId: string, duration: 'monthly' | 'quarterly' | '3-month' | string) => {
   if (typeof window === 'undefined') return;
@@ -143,99 +189,134 @@ export const trackPackageSelection = (pkgId: string, duration: 'monthly' | 'quar
     premium: 999
   };
   const pkgPrice = prices[pkgId.toLowerCase()] || 499;
+  const pkgName = pkgId.toUpperCase();
+
+  // Exact custom event name requested (select_starter_package etc)
+  const exactEventName = `select_${pkgId.toLowerCase()}_package`;
 
   if (window.gtag) {
-    // 1. Generic package selection click
+    // 1. Fire select_package with dimensional variables
     window.gtag('event', 'select_package', {
-      package_id: pkgId,
+      package_name: pkgName,
       package_price: pkgPrice,
-      plan_duration: duration,
-      page_name: ctx.page_title,
-      page_path: ctx.page_path
+      billing_plan: duration,
+      page_name: ctx.page_name,
+      page_path: ctx.page_path,
+      page_location: ctx.page_location,
+      device_type: ctx.device_type
     });
 
-    // 2. Specific GA4 custom event requested (e.g. select_starter_package)
-    const specificEvent = `select_${pkgId.toLowerCase()}_package`;
-    window.gtag('event', specificEvent, {
-      package_id: pkgId,
+    // 2. Fire specific brand tracking events
+    window.gtag('event', exactEventName, {
+      package_name: pkgName,
       package_price: pkgPrice,
-      plan_duration: duration,
-      page_name: ctx.page_title,
+      billing_plan: duration,
+      page_name: ctx.page_name,
       page_path: ctx.page_path,
       value: pkgPrice,
       currency: 'USD'
     });
   }
 
-  // GTM pushes
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
-    event: 'select_package',
-    package_id: pkgId,
+    event: 'package_selected', // Conversion trigger indicator
+    package_name: pkgName,
     package_price: pkgPrice,
-    plan_duration: duration,
-    page_name: ctx.page_title,
+    billing_plan: duration,
+    page_name: ctx.page_name,
     page_path: ctx.page_path,
-    page_location: ctx.page_location,
+    device_type: ctx.device_type,
     is_conversion: true
   });
 
   window.dataLayer.push({
-    event: `select_${pkgId.toLowerCase()}_package`,
-    package_id: pkgId,
+    event: exactEventName,
+    package_name: pkgName,
     package_price: pkgPrice,
-    plan_duration: duration,
+    billing_plan: duration,
     value: pkgPrice,
     currency: 'USD'
   });
 };
 
 /**
- * Tracks add-on toggling in the checkout component.
+ * 4. Add-On Selected Tracking
  */
 export const trackAddonToggle = (addonId: string, addonName: string, selected: boolean, priceValue: number) => {
   if (typeof window === 'undefined') return;
 
   const ctx = getCurrentContext();
 
-  const eventName = selected ? 'add_to_cart_addon' : 'remove_from_cart_addon';
-
   if (window.gtag) {
-    window.gtag('event', eventName, {
-      addon_id: addonId,
+    window.gtag('event', 'addon_selected', {
       addon_name: addonName,
-      price: priceValue,
-      page_name: ctx.page_title,
-      page_path: ctx.page_path,
-      value: priceValue,
-      currency: 'USD'
-    });
-
-    // Custom individual tracking events for specific add-on tracking
-    const cleanedAddonId = addonId.toLowerCase().replace(/[^a-z0-9_]/g, '_');
-    window.gtag('event', `toggle_addon_${cleanedAddonId}`, {
-      addon_id: addonId,
-      addon_name: addonName,
+      package_price: priceValue,
       is_selected: selected,
-      price: priceValue
+      page_name: ctx.page_name,
+      page_path: ctx.page_path,
+      page_location: ctx.page_location,
+      device_type: ctx.device_type
     });
   }
 
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
-    event: 'addon_interaction',
-    addon_id: addonId,
+    event: 'addon_selected',
     addon_name: addonName,
-    interaction_type: selected ? 'select' : 'deselect',
-    price_value: priceValue,
-    page_name: ctx.page_title,
+    package_price: priceValue,
+    is_selected: selected,
+    page_name: ctx.page_name,
     page_path: ctx.page_path,
-    device_type: ctx.device_info
+    device_type: ctx.device_type
   });
 };
 
 /**
- * Tracks various steps in the checkout and setup process (Funnel stages).
+ * 5. Funnel and Checkout Initiation Tracking
+ */
+export const trackBeginCheckout = (pkgId: string, billingPlan: string) => {
+  if (typeof window === 'undefined') return;
+
+  const ctx = getCurrentContext();
+  const prices: Record<string, number> = {
+    starter: 149,
+    business: 499,
+    premium: 999
+  };
+  const pkgPrice = prices[pkgId.toLowerCase()] || 499;
+
+  if (window.gtag) {
+    window.gtag('event', 'begin_checkout', {
+      package_name: pkgId.toUpperCase(),
+      package_price: pkgPrice,
+      billing_plan: billingPlan,
+      page_name: ctx.page_name,
+      page_path: ctx.page_path,
+      page_location: ctx.page_location,
+      device_type: ctx.device_type,
+      referrer_source: ctx.referrer_source,
+      session_source: ctx.session_source
+    });
+  }
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'begin_checkout',
+    package_name: pkgId.toUpperCase(),
+    package_price: pkgPrice,
+    billing_plan: billingPlan,
+    page_name: ctx.page_name,
+    page_path: ctx.page_path,
+    device_type: ctx.device_type,
+    referrer_source: ctx.referrer_source,
+    session_source: ctx.session_source,
+    is_conversion: true
+  });
+};
+
+/**
+ * Funnel stage step analysis
  */
 export const trackFunnelStep = (stepNumber: number, stepName: string, details?: Record<string, any>) => {
   if (typeof window === 'undefined') return;
@@ -246,19 +327,10 @@ export const trackFunnelStep = (stepNumber: number, stepName: string, details?: 
     window.gtag('event', 'checkout_funnel', {
       step_number: stepNumber,
       step_name: stepName,
-      page_name: ctx.page_title,
+      page_name: ctx.page_name,
       page_path: ctx.page_path,
       ...details
     });
-
-    // Conversion identifier event for step 5 (order placed support click / WhatsApp submit)
-    if (stepNumber === 5) {
-      window.gtag('event', 'checkout_completed', {
-        step_name: stepName,
-        value: details?.total_monthly || 149,
-        currency: 'USD'
-      });
-    }
   }
 
   window.dataLayer = window.dataLayer || [];
@@ -266,25 +338,70 @@ export const trackFunnelStep = (stepNumber: number, stepName: string, details?: 
     event: 'checkout_step',
     step_number: stepNumber,
     step_name: stepName,
-    page_name: ctx.page_title,
+    page_name: ctx.page_name,
     page_path: ctx.page_path,
-    ...details,
-    is_conversion: stepNumber >= 3
+    ...details
   });
 };
 
 /**
- * Tracks scroll patterns (25%, 50%, 75%, 100%)
+ * 6. Form Submission Events
  */
-export const trackScrollEvent = (percentage: number) => {
+export const trackFormSubmit = (formName: string, details?: Record<string, any>) => {
   if (typeof window === 'undefined') return;
 
   const ctx = getCurrentContext();
 
   if (window.gtag) {
+    window.gtag('event', 'form_submit', {
+      form_name: formName,
+      page_name: ctx.page_name,
+      page_path: ctx.page_path,
+      page_location: ctx.page_location,
+      device_type: ctx.device_type,
+      referrer_source: ctx.referrer_source,
+      session_source: ctx.session_source,
+      ...details
+    });
+  }
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'form_submit',
+    form_name: formName,
+    page_name: ctx.page_name,
+    page_path: ctx.page_path,
+    device_type: ctx.device_type,
+    referrer_source: ctx.referrer_source,
+    session_source: ctx.session_source,
+    is_conversion: true,
+    ...details
+  });
+};
+
+/**
+ * 7. Scroll Depth Tracking events (scroll_25, scroll_50, scroll_75, scroll_100)
+ */
+export const trackScrollEvent = (percentage: number) => {
+  if (typeof window === 'undefined') return;
+
+  const ctx = getCurrentContext();
+  const eventName = `scroll_${percentage}`;
+
+  if (window.gtag) {
+    // Fire exact event requested (scroll_25 etc)
+    window.gtag('event', eventName, {
+      percent_scrolled: percentage,
+      page_name: ctx.page_name,
+      page_path: ctx.page_path,
+      page_location: ctx.page_location,
+      device_type: ctx.device_type
+    });
+
+    // Also fire broad general scroll config for reports
     window.gtag('event', 'scroll', {
       percent_scrolled: percentage,
-      page_title: ctx.page_title,
+      page_name: ctx.page_name,
       page_path: ctx.page_path,
       page_location: ctx.page_location
     });
@@ -292,15 +409,76 @@ export const trackScrollEvent = (percentage: number) => {
 
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
-    event: 'scroll_depth',
+    event: eventName,
     percent_scrolled: percentage,
-    page_name: ctx.page_title,
+    page_name: ctx.page_name,
+    page_path: ctx.page_path,
+    device_type: ctx.device_type
+  });
+};
+
+/**
+ * 8. Core CTA Click Event Tracking
+ */
+export const trackCtaClick = (ctaLabel: string, sectionName: string) => {
+  if (typeof window === 'undefined') return;
+
+  const ctx = getCurrentContext();
+
+  if (window.gtag) {
+    window.gtag('event', 'cta_click', {
+      button_type: 'cta',
+      cta_label: ctaLabel,
+      section: sectionName,
+      page_name: ctx.page_name,
+      page_path: ctx.page_path,
+      page_location: ctx.page_location,
+      device_type: ctx.device_type,
+      referrer_source: ctx.referrer_source,
+      session_source: ctx.session_source
+    });
+  }
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'cta_click',
+    cta_label: ctaLabel,
+    section: sectionName,
+    page_name: ctx.page_name,
+    page_path: ctx.page_path,
+    device_type: ctx.device_type
+  });
+};
+
+/**
+ * 9. FAQ Toggle and Accordion Expansion Tracker
+ */
+export const trackFaqExpand = (questionName: string) => {
+  if (typeof window === 'undefined') return;
+
+  const ctx = getCurrentContext();
+
+  if (window.gtag) {
+    window.gtag('event', 'faq_expand', {
+      faq_question: questionName,
+      page_name: ctx.page_name,
+      page_path: ctx.page_path,
+      page_location: ctx.page_location,
+      device_type: ctx.device_type
+    });
+  }
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'faq_expand',
+    faq_question: questionName,
+    page_name: ctx.page_name,
     page_path: ctx.page_path
   });
 };
 
 /**
- * Tracks standard CTAs or form contact selections.
+ * Comprehensive direct dimension tracker
  */
 export const trackFormInteraction = (formName: string, actionName: string, details?: Record<string, any>) => {
   if (typeof window === 'undefined') return;
@@ -311,19 +489,21 @@ export const trackFormInteraction = (formName: string, actionName: string, detai
     window.gtag('event', 'form_interaction', {
       form_id: formName,
       form_action: actionName,
-      page_name: ctx.page_title,
+      page_name: ctx.page_name,
       page_path: ctx.page_path,
+      device_type: ctx.device_type,
       ...details
     });
   }
 
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
-    event: 'form_submission',
+    event: 'form_interaction',
     form_id: formName,
     form_action: actionName,
-    page_name: ctx.page_title,
+    page_name: ctx.page_name,
     page_path: ctx.page_path,
-    is_conversion: actionName === 'submit'
+    device_type: ctx.device_type,
+    ...details
   });
 };

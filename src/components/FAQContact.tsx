@@ -6,7 +6,12 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { ChevronDown, ChevronUp, Mail, Phone, MapPin, Send, HelpCircle, CheckCircle, MessageSquare } from 'lucide-react';
 import { FAQ_ITEMS } from '../data';
-import { trackWhatsAppClick, trackFormInteraction } from '../lib/analytics';
+import { 
+  trackWhatsAppClick, 
+  trackFormInteraction,
+  trackFaqExpand,
+  trackFormSubmit
+} from '../lib/analytics';
 
 export default function FAQContact() {
   const [openIndexes, setOpenIndexes] = useState<number[]>([0]); // Open first item by default
@@ -14,6 +19,10 @@ export default function FAQContact() {
   const [sentMessage, setSentMessage] = useState(false);
 
   const toggleFAQIndex = (index: number) => {
+    const isExpanding = !openIndexes.includes(index);
+    if (isExpanding && FAQ_ITEMS[index]) {
+      trackFaqExpand(FAQ_ITEMS[index].q);
+    }
     setOpenIndexes(prev => {
       if (prev.includes(index)) {
         return prev.filter(i => i !== index);
@@ -46,6 +55,10 @@ export default function FAQContact() {
     
     // Send event logging to GA4 and GTM
     trackWhatsAppClick('support');
+    trackFormSubmit('contact_form', {
+      name: formData.name,
+      email: formData.email
+    });
     trackFormInteraction('contact_form', 'submit', {
       name: formData.name,
       email: formData.email

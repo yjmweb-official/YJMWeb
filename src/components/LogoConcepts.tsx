@@ -6,7 +6,7 @@
 import { useState, ReactNode, FormEvent } from 'react';
 import { Copy, Check, Sparkles, Shield, Cpu, Zap, Flame, Eye, MessageSquare, ArrowRight, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { trackWhatsAppClick, trackFormInteraction } from '../lib/analytics';
+import { trackWhatsAppClick, trackFormInteraction, trackFormSubmit } from '../lib/analytics';
 
 interface LogoItem {
   id: string;
@@ -45,6 +45,11 @@ export default function LogoConcepts() {
 
     // Track branding lab logo order in GA4 & GTM
     trackWhatsAppClick('support');
+    trackFormSubmit('branding_lab_order', {
+      brand_name: logoBrandName,
+      aesthetic: logoAesthetic,
+      colors: logoColors || 'Any'
+    });
     trackFormInteraction('branding_lab_order', 'submit', {
       brand_name: logoBrandName,
       aesthetic: logoAesthetic,

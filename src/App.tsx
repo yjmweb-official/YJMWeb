@@ -31,7 +31,8 @@ import {
   trackPackageSelection,
   trackScrollEvent,
   trackFormInteraction,
-  trackFunnelStep
+  trackFunnelStep,
+  trackCtaClick
 } from './lib/analytics';
 
 export default function App() {
@@ -136,6 +137,70 @@ export default function App() {
     };
   }, [activeTab]);
 
+  // Exit Intent tracking
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let exitIntentTriggered = false;
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY < 20 && !exitIntentTriggered) {
+        exitIntentTriggered = true;
+        trackFormInteraction('window_exit', 'exit_intent', {
+          trigger_type: 'mouse_leave_viewport'
+        });
+        
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'exit_intent',
+          page_name: document.title,
+          page_path: window.location.pathname + window.location.hash
+        });
+      }
+    };
+
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => {
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  // Time on page / active engagement intervals (15s, 30s, 60s, 120s, 180s)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const trackTimeInterval = (seconds: number) => {
+      if (window.gtag) {
+        window.gtag('event', 'time_spent_checkpoint', {
+          seconds_spent: seconds,
+          page_name: document.title,
+          page_path: window.location.pathname + window.location.hash
+        });
+      }
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'time_on_page',
+        seconds_spent: seconds,
+        page_name: document.title,
+        page_path: window.location.pathname + window.location.hash
+      });
+    };
+
+    const timer15 = setTimeout(() => trackTimeInterval(15), 15000);
+    const timer30 = setTimeout(() => trackTimeInterval(30), 30000);
+    const timer60 = setTimeout(() => trackTimeInterval(60), 60000);
+    const timer120 = setTimeout(() => trackTimeInterval(120), 120000);
+    const timer180 = setTimeout(() => trackTimeInterval(180), 180000);
+
+    return () => {
+      clearTimeout(timer15);
+      clearTimeout(timer30);
+      clearTimeout(timer60);
+      clearTimeout(timer120);
+      clearTimeout(timer180);
+    };
+  }, [activeTab]);
+
   // Synchronize reverse hash change navigation (e.g. browser back/forward buttons)
   useEffect(() => {
     const handleHashChange = () => {
@@ -154,6 +219,7 @@ export default function App() {
 
   const handleChoosePackageFromHero = () => {
     setActiveTab('pricing');
+    trackCtaClick('view_packages_hero', 'hero_main');
     trackFormInteraction('hero_cta', 'click', {
       cta_id: 'view_packages_hero',
       current_tab: 'landing'
@@ -163,12 +229,14 @@ export default function App() {
   const handleSelectPackageForCheckout = (pkgId: string) => {
     setSelectedPackageId(pkgId);
     setActiveTab('checkout');
+    trackCtaClick(`select_${pkgId.toLowerCase()}_package`, 'pricing_grid');
     trackPackageSelection(pkgId, 'monthly');
     trackFunnelStep(2, 'package_selected', { package_id: pkgId });
   };
 
   const handleSelectPlanForCheckout = (planId: 'monthly' | 'quarterly') => {
     setActiveTab('checkout');
+    trackCtaClick(`select_plan_${planId}`, 'management_grid');
     trackFormInteraction('management_subscription', 'select_plan', { plan_id: planId });
     trackFunnelStep(2, 'management_plan_selected', { plan_id: planId });
   };
