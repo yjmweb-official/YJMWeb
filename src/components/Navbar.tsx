@@ -19,7 +19,8 @@ export default function Navbar({ activeTab, setActiveTab, onNavigateToCheckout }
     { id: 'features', label: 'Solutions' },
     { id: 'pricing', label: 'Packages' },
     { id: 'management', label: 'Management Plan' },
-    { id: 'logos', label: 'Branding Lab' }
+    { id: 'logos', label: 'Branding Lab' },
+    { id: 'contact', label: 'Contact' }
   ];
 
   const handleNavClick = (id: string) => {

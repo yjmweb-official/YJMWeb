@@ -29,7 +29,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== 'undefined' && window.location.hash) {
       const hash = window.location.hash.substring(1);
-      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout'];
+      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact'];
       if (validTabs.includes(hash)) {
         return hash;
       }
@@ -42,30 +42,44 @@ export default function App() {
 
   // Synchronize dynamic URL update and send manual page views to Google Analytics
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (activeTab === 'contact') {
+      setTimeout(() => {
+        const contactSection = document.getElementById('faq-contact-segment');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-    let title = 'YJMWeb | Premium Future Web Design';
+    let title = 'YJMWeb - Home';
     switch (activeTab) {
       case 'landing':
-        title = 'Home | YJMWeb - We build websites that convert';
+        title = 'YJMWeb - Home';
         break;
       case 'features':
-        title = 'Solutions | YJMWeb - Modern Web Solutions';
+        title = 'YJMWeb - Solutions';
         break;
       case 'pricing':
-        title = 'Packages | YJMWeb - Choose Your Plan';
+        title = 'YJMWeb - Pricing';
         break;
       case 'management':
-        title = 'Management Plan | YJMWeb - Live Support';
+        title = 'YJMWeb - Management Plan';
         break;
       case 'logos':
-        title = 'Branding Lab | YJMWeb - Design Concepts';
+        title = 'YJMWeb - Branding Lab';
         break;
       case 'checkout':
-        title = 'Checkout | YJMWeb - Configure & Launch';
+        title = 'YJMWeb - Checkout';
+        break;
+      case 'contact':
+        title = 'YJMWeb - Contact';
         break;
       default:
-        title = 'YJMWeb | Premium Future Web Design';
+        title = 'YJMWeb - Home';
     }
 
     document.title = title;
@@ -82,12 +96,21 @@ export default function App() {
       const gPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
       const gLocation = window.location.origin + gPath;
 
+      // Ensure global set state parameters are configured
       (window as any).gtag('set', {
         page_title: title,
         page_path: gPath,
         page_location: gLocation
       });
 
+      // Fire a config call with the new page settings to securely track custom state
+      (window as any).gtag('config', 'G-QFY8QZW1BY', {
+        page_title: title,
+        page_location: gLocation,
+        page_path: gPath
+      });
+
+      // Fire an explicit manual page_view event for safety across different report views
       (window as any).gtag('event', 'page_view', {
         page_title: title,
         page_path: gPath,
@@ -102,7 +125,7 @@ export default function App() {
     const handleHashChange = () => {
       if (typeof window !== 'undefined') {
         const hash = window.location.hash.substring(1) || 'landing';
-        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout'];
+        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact'];
         if (validTabs.includes(hash)) {
           setActiveTab(hash);
         }
@@ -200,7 +223,7 @@ export default function App() {
         <AnimatePresence mode="wait">
           
           {/* View Tab 1: LANDING PAGE */}
-          {activeTab === 'landing' && (
+          {(activeTab === 'landing' || activeTab === 'contact') && (
             <motion.div
               key="landing"
               initial={{ opacity: 0, y: 15 }}

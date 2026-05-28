@@ -70,6 +70,11 @@ export default function Footer({ onNavigateTab }: FooterProps) {
                   Branding Art Lab
                 </button>
               </li>
+              <li>
+                <button onClick={() => handleLinkClick('contact')} className="hover:text-neon-purple transition-all cursor-pointer">
+                  FAQ & Contact Form
+                </button>
+              </li>
             </ul>
           </div>
 
