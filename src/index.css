@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --color-neon-blue: #22d3ee;
+  --color-neon-purple: #a855f7;
+  --color-neon-pink: #d946ef;
+  --color-dark-bg: #0A0A0C;
+  --color-dark-card: #101014;
+  
+  --animate-pulse-glow: pulse-glow 3s infinite ease-in-out;
+  --animate-grid-move: grid-move 40s linear infinite;
+  --animate-border-beam: border-beam 6s linear infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+    filter: blur(80px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.15);
+    filter: blur(100px);
+  }
+}
+
+@keyframes grid-move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 40px;
+  }
+}
+
+@keyframes border-beam {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+/* Custom Utilities */
+.glass-panel {
+  background: rgba(13, 13, 18, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-glow {
+  background: rgba(13, 13, 18, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 243, 255, 0.15);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.05);
+}
+
+.glass-panel-glow-purple {
+  background: rgba(13, 13, 18, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(189, 0, 255, 0.15);
+  box-shadow: 0 0 15px rgba(189, 0, 255, 0.05);
+}
+
+.neon-text-blue {
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.2);
+}
+
+.neon-text-purple {
+  text-shadow: 0 0 10px rgba(189, 0, 255, 0.5), 0 0 20px rgba(189, 0, 255, 0.2);
+}
+
+.cyber-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Hide default scrollbars for modern aesthetic but keep behavior */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0A0C;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.3);
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #0A0A0C;
+  color: #f3f4f6;
+}
