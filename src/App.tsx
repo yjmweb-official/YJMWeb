@@ -30,27 +30,82 @@ export default function App() {
   const [activeTestimonial, setActiveTestimonial] = useState<number>(0);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
-  // Auto-scroll to top when tab changes
+  // Auto-scroll to top when tab changes and send page view to Google Analytics
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    let title = 'YJMWeb | Premium Future Web Design';
+    switch (activeTab) {
+      case 'landing':
+        title = 'Home | YJMWeb - We build websites that convert';
+        break;
+      case 'features':
+        title = 'Solutions | YJMWeb - Modern Web Solutions';
+        break;
+      case 'pricing':
+        title = 'Packages | YJMWeb - Choose Your Plan';
+        break;
+      case 'management':
+        title = 'Management Plan | YJMWeb - Live Support';
+        break;
+      case 'logos':
+        title = 'Branding Lab | YJMWeb - Design Concepts';
+        break;
+      case 'checkout':
+        title = 'Checkout | YJMWeb - Configure & Launch';
+        break;
+      default:
+        title = 'YJMWeb | Premium Future Web Design';
+    }
+
+    document.title = title;
+
+    // Send page view to Google Analytics so we can track page views with dynamic page titles
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('config', 'G-QFY8QZW1BY', {
+        page_title: title,
+        page_path: `/${activeTab}`,
+        page_location: window.location.href
+      });
+    }
   }, [activeTab]);
 
   const handleChoosePackageFromHero = () => {
     setActiveTab('pricing');
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'click_cta', {
+        cta_id: 'view_packages_hero'
+      });
+    }
   };
 
   const handleSelectPackageForCheckout = (pkgId: string) => {
     setSelectedPackageId(pkgId);
     setActiveTab('checkout');
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'select_package', {
+        package_id: pkgId
+      });
+    }
   };
 
   const handleSelectPlanForCheckout = (planId: 'monthly' | 'quarterly') => {
-    // 3-Month package or rolling monthly setting is handled internally in Checkout
     setActiveTab('checkout');
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'select_management_plan', {
+        plan_id: planId
+      });
+    }
   };
 
   const handleOrderSuccess = () => {
     setShowSuccessModal(true);
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'purchase_success', {
+        currency: 'USD',
+        value: 149
+      });
+    }
     setTimeout(() => {
       setShowSuccessModal(false);
     }, 8000);

@@ -216,6 +216,19 @@ _Please draft our mock layout review based on the details above!_`;
     // Open in new window safely
     window.open(targetUrl, '_blank');
     
+    // Track select submit order event in Google Analytics
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'submit_order', {
+        brand_name: customer.restaurantName,
+        package_id: selectedPackage.id,
+        plan_id: selectedPlan.id,
+        addons_count: selectedAddOnIds.length,
+        total_setup: sumTotal.setup,
+        total_monthly: sumTotal.monthly,
+        total_value: sumTotal.total
+      });
+    }
+
     if (onOrderSuccess) {
       onOrderSuccess();
     }

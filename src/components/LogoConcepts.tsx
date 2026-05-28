@@ -41,6 +41,16 @@ export default function LogoConcepts() {
     const targetUrl = `https://wa.me/94776826937?text=${encoded}`;
     
     window.open(targetUrl, '_blank');
+
+    // Track branding lab logo order in Google Analytics
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'submit_logo_order', {
+        brand_name: logoBrandName,
+        aesthetic: logoAesthetic,
+        colors: logoColors || 'Any'
+      });
+    }
+
     setShowLogoSuccess(true);
     setTimeout(() => {
       setShowLogoSuccess(false);
