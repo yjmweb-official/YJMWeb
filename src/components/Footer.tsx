@@ -4,6 +4,7 @@
  */
 
 import { Mail, MessageSquare, ArrowUp, Shield } from 'lucide-react';
+import { trackWhatsAppClick } from '../lib/analytics';
 
 interface FooterProps {
   onNavigateTab: (tab: string) => void;
@@ -89,7 +90,13 @@ export default function Footer({ onNavigateTab }: FooterProps) {
                 yjmweb@gmail.com
               </a>
 
-              <a href="https://wa.me/94776826937" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-white transition-all text-neutral-300">
+              <a 
+                href="https://wa.me/94776826937" 
+                target="_blank" 
+                rel="noreferrer" 
+                onClick={() => trackWhatsAppClick('footer')}
+                className="flex items-center gap-2 hover:text-white transition-all text-neutral-300"
+              >
                 <MessageSquare className="w-4 h-4 text-green-400" />
                 +94 77 682 6937
               </a>

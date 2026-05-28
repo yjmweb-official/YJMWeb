@@ -6,6 +6,7 @@
 import { useState, ReactNode, FormEvent } from 'react';
 import { Copy, Check, Sparkles, Shield, Cpu, Zap, Flame, Eye, MessageSquare, ArrowRight, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { trackWhatsAppClick, trackFormInteraction } from '../lib/analytics';
 
 interface LogoItem {
   id: string;
@@ -42,14 +43,13 @@ export default function LogoConcepts() {
     
     window.open(targetUrl, '_blank');
 
-    // Track branding lab logo order in Google Analytics
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'submit_logo_order', {
-        brand_name: logoBrandName,
-        aesthetic: logoAesthetic,
-        colors: logoColors || 'Any'
-      });
-    }
+    // Track branding lab logo order in GA4 & GTM
+    trackWhatsAppClick('support');
+    trackFormInteraction('branding_lab_order', 'submit', {
+      brand_name: logoBrandName,
+      aesthetic: logoAesthetic,
+      colors: logoColors || 'Any'
+    });
 
     setShowLogoSuccess(true);
     setTimeout(() => {

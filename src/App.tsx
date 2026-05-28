@@ -24,6 +24,16 @@ import Footer from './components/Footer';
 // Static Data
 import { PACKAGES, TESTIMONIALS, RESTAURANT_FEATURES } from './data';
 
+// Analytics tracking
+import { 
+  trackPageView, 
+  trackWhatsAppClick, 
+  trackPackageSelection,
+  trackScrollEvent,
+  trackFormInteraction,
+  trackFunnelStep
+} from './lib/analytics';
+
 export default function App() {
   // Read hash on initialize to support deep linking and accurate initial GA reports
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -82,7 +92,9 @@ export default function App() {
         title = 'YJMWeb - Home';
     }
 
-    document.title = title;
+    // Call unified tracker for page views
+    const routerPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
+    trackPageView(title, routerPath);
 
     // Mutate the hash suffix to visually represent routing in browser and let GA feel URL state changes
     const targetHash = activeTab === 'landing' ? '' : `#${activeTab}`;
@@ -90,34 +102,38 @@ export default function App() {
       const cleanUrl = window.location.pathname + targetHash;
       window.history.replaceState(null, '', cleanUrl);
     }
+  }, [activeTab]);
 
-    // Send page view to Google Analytics so we can track page views with dynamic page titles
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      const gPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
-      const gLocation = window.location.origin + gPath;
+  // Scroll threshold tracking (25%, 50%, 75%, 100%) dynamically per route
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
 
-      // Ensure global set state parameters are configured
-      (window as any).gtag('set', {
-        page_title: title,
-        page_path: gPath,
-        page_location: gLocation
-      });
+    const triggeredThresholds = new Set<number>();
 
-      // Fire a config call with the new page settings to securely track custom state
-      (window as any).gtag('config', 'G-QFY8QZW1BY', {
-        page_title: title,
-        page_location: gLocation,
-        page_path: gPath
-      });
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if (docHeight <= 0) return;
 
-      // Fire an explicit manual page_view event for safety across different report views
-      (window as any).gtag('event', 'page_view', {
-        page_title: title,
-        page_path: gPath,
-        page_location: gLocation,
-        send_to: 'G-QFY8QZW1BY'
-      });
-    }
+      const scrollPercentage = Math.round((scrollTop / docHeight) * 100);
+
+      const checkThreshold = (threshold: number) => {
+        if (scrollPercentage >= threshold && !triggeredThresholds.has(threshold)) {
+          triggeredThresholds.add(threshold);
+          trackScrollEvent(threshold);
+        }
+      };
+
+      checkThreshold(25);
+      checkThreshold(50);
+      checkThreshold(75);
+      checkThreshold(100);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [activeTab]);
 
   // Synchronize reverse hash change navigation (e.g. browser back/forward buttons)
@@ -138,40 +154,32 @@ export default function App() {
 
   const handleChoosePackageFromHero = () => {
     setActiveTab('pricing');
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'click_cta', {
-        cta_id: 'view_packages_hero'
-      });
-    }
+    trackFormInteraction('hero_cta', 'click', {
+      cta_id: 'view_packages_hero',
+      current_tab: 'landing'
+    });
   };
 
   const handleSelectPackageForCheckout = (pkgId: string) => {
     setSelectedPackageId(pkgId);
     setActiveTab('checkout');
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'select_package', {
-        package_id: pkgId
-      });
-    }
+    trackPackageSelection(pkgId, 'monthly');
+    trackFunnelStep(2, 'package_selected', { package_id: pkgId });
   };
 
   const handleSelectPlanForCheckout = (planId: 'monthly' | 'quarterly') => {
     setActiveTab('checkout');
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'select_management_plan', {
-        plan_id: planId
-      });
-    }
+    trackFormInteraction('management_subscription', 'select_plan', { plan_id: planId });
+    trackFunnelStep(2, 'management_plan_selected', { plan_id: planId });
   };
 
   const handleOrderSuccess = () => {
     setShowSuccessModal(true);
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'purchase_success', {
-        currency: 'USD',
-        value: 149
-      });
-    }
+    trackFunnelStep(5, 'purchase_success', {
+      package_id: selectedPackageId,
+      currency: 'USD',
+      total_monthly: 149
+    });
     setTimeout(() => {
       setShowSuccessModal(false);
     }, 8000);
@@ -194,6 +202,7 @@ export default function App() {
           href="https://wa.me/94776826937" 
           target="_blank" 
           rel="noreferrer"
+          onClick={() => trackWhatsAppClick('floating')}
           className="w-14 h-14 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-neutral-950 shadow-2xl hover:shadow-green-500/25 transition-all outline-none hover:scale-110 active:scale-95 group relative border border-green-400/20"
           id="btn-whatsapp-floating-trigger"
           title="Connect on WhatsApp"
@@ -278,6 +287,7 @@ export default function App() {
                     href="https://wa.me/94776826937"
                     target="_blank"
                     rel="noreferrer"
+                    onClick={() => trackWhatsAppClick('hero')}
                     id="hero-cta-btn-whatsapp"
                     className="w-full sm:w-auto px-8 py-4 bg-[#128c7e]/15 hover:bg-[#128c7e]/25 border border-[#128c7e]/40 hover:border-[#128c7e]/60 text-green-400 font-display font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all"
                   >

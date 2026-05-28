@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { Menu, X, ArrowRight, MessageSquare, Sparkles } from 'lucide-react';
+import { trackWhatsAppClick } from '../lib/analytics';
 
 interface NavbarProps {
   activeTab: string;
@@ -76,6 +77,7 @@ export default function Navbar({ activeTab, setActiveTab, onNavigateToCheckout }
               href="https://wa.me/94776826937" 
               target="_blank" 
               rel="noreferrer"
+              onClick={() => trackWhatsAppClick('navbar')}
               className="text-neutral-400 hover:text-green-400 transition-all flex items-center justify-center p-2 rounded-full bg-white/5 border border-white/5 hover:border-green-400/20 shadow-sm"
               id="navbar-wa-text-link"
               title="Chat on WhatsApp"
@@ -144,6 +146,7 @@ export default function Navbar({ activeTab, setActiveTab, onNavigateToCheckout }
               href="https://wa.me/94776826937" 
               target="_blank" 
               rel="noreferrer"
+              onClick={() => trackWhatsAppClick('support')}
               className="flex items-center gap-2 p-3 bg-neutral-900 rounded-lg text-xs font-mono text-neutral-300 hover:text-white"
             >
               <MessageSquare className="w-4 h-4 text-green-400" />

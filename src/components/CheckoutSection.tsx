@@ -11,6 +11,12 @@ import {
 } from 'lucide-react';
 import { PACKAGES, ADDONS, MANAGEMENT_PLANS } from '../data';
 import { Package, AddOn, ManagementPlan, CustomerInfo } from '../types';
+import { 
+  trackAddonToggle, 
+  trackWhatsAppClick, 
+  trackFunnelStep, 
+  trackFormInteraction 
+} from '../lib/analytics';
 
 const COUNTRIES = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
@@ -78,6 +84,15 @@ export default function CheckoutSection({ initialPackageId = 'business', onOrder
     }
   }, [initialPackageId]);
 
+  // Track checkout funnel step 1: checkout_viewed
+  useEffect(() => {
+    trackFunnelStep(1, 'checkout_viewed', { 
+      package_id: selectedPackage.id,
+      plan_id: selectedPlan.id,
+      addons_count: selectedAddOnIds.length
+    });
+  }, [selectedPackage.id, selectedPlan.id]);
+
   // Recalculate totals
   useEffect(() => {
     let setup = selectedPackage.priceSetup;
@@ -120,7 +135,15 @@ export default function CheckoutSection({ initialPackageId = 'business', onOrder
 
   const toggleAddOn = (id: string) => {
     setSelectedAddOnIds(prev => {
-      if (prev.includes(id)) {
+      const isSelected = prev.includes(id);
+      const addon = ADDONS.find(a => a.id === id);
+      const addonName = addon?.name || id;
+      const addonPrice = addon?.price || 0;
+      
+      // Track add-on interaction
+      trackAddonToggle(id, addonName, !isSelected, addonPrice);
+
+      if (isSelected) {
         return prev.filter(item => item !== id);
       } else {
         return [...prev, id];
@@ -216,18 +239,17 @@ _Please draft our mock layout review based on the details above!_`;
     // Open in new window safely
     window.open(targetUrl, '_blank');
     
-    // Track select submit order event in Google Analytics
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'submit_order', {
-        brand_name: customer.restaurantName,
-        package_id: selectedPackage.id,
-        plan_id: selectedPlan.id,
-        addons_count: selectedAddOnIds.length,
-        total_setup: sumTotal.setup,
-        total_monthly: sumTotal.monthly,
-        total_value: sumTotal.total
-      });
-    }
+    // Track checkout submissions and funnel completions
+    trackWhatsAppClick('checkout');
+    trackFunnelStep(4, 'submit_order', {
+      brand_name: customer.restaurantName,
+      package_id: selectedPackage.id,
+      plan_id: selectedPlan.id,
+      addons_count: selectedAddOnIds.length,
+      total_setup: sumTotal.setup,
+      total_monthly: sumTotal.monthly,
+      total_value: sumTotal.total
+    });
 
     if (onOrderSuccess) {
       onOrderSuccess();

@@ -6,6 +6,7 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { ChevronDown, ChevronUp, Mail, Phone, MapPin, Send, HelpCircle, CheckCircle, MessageSquare } from 'lucide-react';
 import { FAQ_ITEMS } from '../data';
+import { trackWhatsAppClick, trackFormInteraction } from '../lib/analytics';
 
 export default function FAQContact() {
   const [openIndexes, setOpenIndexes] = useState<number[]>([0]); // Open first item by default
@@ -43,6 +44,13 @@ export default function FAQContact() {
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/94776826937?text=${encoded}`, '_blank');
     
+    // Send event logging to GA4 and GTM
+    trackWhatsAppClick('support');
+    trackFormInteraction('contact_form', 'submit', {
+      name: formData.name,
+      email: formData.email
+    });
+
     setSentMessage(true);
     setFormData({ name: '', email: '', query: '' });
     setTimeout(() => setSentMessage(false), 5000);
@@ -195,6 +203,7 @@ export default function FAQContact() {
               href="https://wa.me/94776826937" 
               target="_blank" 
               rel="noreferrer"
+              onClick={() => trackWhatsAppClick('support')}
               className="flex items-start gap-3.5 p-3.5 bg-neutral-900/40 hover:bg-white/2.5 border border-white/2.5 rounded-xl transition-all"
               id="info-card-phone"
             >
