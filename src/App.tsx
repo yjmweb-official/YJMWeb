@@ -25,12 +25,22 @@ import Footer from './components/Footer';
 import { PACKAGES, TESTIMONIALS, RESTAURANT_FEATURES } from './data';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('landing');
+  // Read hash on initialize to support deep linking and accurate initial GA reports
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout'];
+      if (validTabs.includes(hash)) {
+        return hash;
+      }
+    }
+    return 'landing';
+  });
   const [selectedPackageId, setSelectedPackageId] = useState<string>('business');
   const [activeTestimonial, setActiveTestimonial] = useState<number>(0);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
-  // Auto-scroll to top when tab changes and send page view to Google Analytics
+  // Synchronize dynamic URL update and send manual page views to Google Analytics
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -60,20 +70,48 @@ export default function App() {
 
     document.title = title;
 
+    // Mutate the hash suffix to visually represent routing in browser and let GA feel URL state changes
+    const targetHash = activeTab === 'landing' ? '' : `#${activeTab}`;
+    if (typeof window !== 'undefined' && window.location.hash !== targetHash) {
+      const cleanUrl = window.location.pathname + targetHash;
+      window.history.replaceState(null, '', cleanUrl);
+    }
+
     // Send page view to Google Analytics so we can track page views with dynamic page titles
     if (typeof window !== 'undefined' && (window as any).gtag) {
+      const gPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
+      const gLocation = window.location.origin + gPath;
+
       (window as any).gtag('set', {
         page_title: title,
-        page_path: `/${activeTab}`,
-        page_location: window.location.href
+        page_path: gPath,
+        page_location: gLocation
       });
+
       (window as any).gtag('event', 'page_view', {
         page_title: title,
-        page_path: `/${activeTab}`,
-        page_location: window.location.href
+        page_path: gPath,
+        page_location: gLocation,
+        send_to: 'G-QFY8QZW1BY'
       });
     }
   }, [activeTab]);
+
+  // Synchronize reverse hash change navigation (e.g. browser back/forward buttons)
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash.substring(1) || 'landing';
+        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout'];
+        if (validTabs.includes(hash)) {
+          setActiveTab(hash);
+        }
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const handleChoosePackageFromHero = () => {
     setActiveTab('pricing');
