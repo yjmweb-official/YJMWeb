@@ -62,7 +62,12 @@ export default function App() {
 
     // Send page view to Google Analytics so we can track page views with dynamic page titles
     if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('config', 'G-QFY8QZW1BY', {
+      (window as any).gtag('set', {
+        page_title: title,
+        page_path: `/${activeTab}`,
+        page_location: window.location.href
+      });
+      (window as any).gtag('event', 'page_view', {
         page_title: title,
         page_path: `/${activeTab}`,
         page_location: window.location.href
