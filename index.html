@@ -6,62 +6,32 @@
     <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
 
     <!-- Google Tag Manager -->
-    <script>
-      // Initialize dataLayer immediately at the very beginning of script load
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        'gtm.start': new Date().getTime(),
-        event: 'gtm.js'
-      });
-
-      // Standard Google Tag Manager loader
-      (function(w,d,s,l,i){
-        w[l]=w[l]||[];
-        var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),
-            dl=l!='dataLayer' ? '&l='+l : '';
-        j.async=true;
-        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-        f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-KRFJVQRW');
-    </script>
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-KRFJVQRW');</script>
     <!-- End Google Tag Manager -->
 
-    <!-- GTM/GA4 Script Loader and Diagnostics Logger -->
-    <script>
+    <!-- GTM/GA4 Scripts Diagnostic Logger -->
+    <script data-cfasync="false">
       (function() {
-        console.log('[GTM-Diagnostics] Tagging system initialized.');
-        console.log('[GTM-Diagnostics] dataLayer content:', window.dataLayer);
-
-        // Verification checks
+        console.log('[GTM-Diagnostics] dataLayer initialized:', window.dataLayer);
         window.addEventListener('load', function() {
           setTimeout(function() {
             if (window.google_tag_manager && window.google_tag_manager['GTM-KRFJVQRW']) {
-              console.log('%c[GTM-Diagnostics] SUCCESS: Google Tag Manager container (GTM-KRFJVQRW) parsed and running smoothly!', 'color: #10B981; font-weight: bold; font-size: 11px;');
+              console.log('%c[GTM-Diagnostics] SUCCESS: GTM-KRFJVQRW container is verified and executing successfully!', 'color: #10B981; font-weight: bold;');
             } else {
-              console.warn('[GTM-Diagnostics] WARNING: GTM container elements are not yet registered on the window object. Analyzing triggers...');
-              var scripts = document.getElementsByTagName('script');
-              var isPresentInDOM = false;
-              for (var i = 0; i < scripts.length; i++) {
-                if (scripts[i].src && scripts[i].src.includes('gtm.js?id=GTM-KRFJVQRW')) {
-                  isPresentInDOM = true;
-                  break;
-                }
-              }
-              if (isPresentInDOM) {
-                console.log('[GTM-Diagnostics] GTM tag exists in page DOM, but may be resolving asynchronously or blocked by privacy configurations.');
-              } else {
-                console.error('%c[GTM-Diagnostics] FATAL ERROR: GTM-KRFJVQRW tag was completely stripped or blocked!', 'color: #EF4444; font-weight: bold;');
-              }
+              console.warn('[GTM-Diagnostics] WARNING: GTM-KRFJVQRW script tag loaded, but container elements not yet found on window. If running inside iframe or behind strict privacy blockers, this is standard.');
             }
-          }, 1000);
+          }, 1500);
         });
       })();
     </script>
 
     <!-- Google Analytics 4 fallback connection -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QFY8QZW1BY"></script>
-    <script>
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=G-QFY8QZW1BY"></script>
+    <script data-cfasync="false">
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());

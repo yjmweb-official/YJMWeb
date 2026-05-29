@@ -105,6 +105,7 @@ export const trackPageView = (title: string, path: string) => {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: 'page_view',
+    page_title: title,
     page_name: title,
     page_path: currentTab,
     page_location: gLocation,
