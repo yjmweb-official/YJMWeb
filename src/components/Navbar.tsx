@@ -146,7 +146,7 @@ export default function Navbar({ activeTab, setActiveTab, onNavigateToCheckout }
               href="https://wa.me/94776826937" 
               target="_blank" 
               rel="noreferrer"
-              onClick={() => trackWhatsAppClick('support')}
+              onClick={() => trackWhatsAppClick('navbar_support')}
               className="flex items-center gap-2 p-3 bg-neutral-900 rounded-lg text-xs font-mono text-neutral-300 hover:text-white"
             >
               <MessageSquare className="w-4 h-4 text-green-400" />

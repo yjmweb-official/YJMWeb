@@ -118,62 +118,134 @@ export const trackPageView = (title: string, path: string) => {
 
 /**
  * 2. WhatsApp Click Tracking (Floating, Support, Checkout, Footer, etc.)
- * Maps clicks instantly to custom events like floating_whatsapp_click or support_whatsapp_click.
+ * Maps clicks instantly to custom events like floating_whatsapp_click and navbar_whatsapp_click.
+ * Provides precise GTM and GA4 validation compliance with robust debugging output.
  */
-export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'hero' | 'footer' | 'faq') => {
+export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq') => {
   if (typeof window === 'undefined') return;
 
   const ctx = getCurrentContext();
-  const clickEventName = `${buttonType}_whatsapp_click`;
+  const timestamp = new Date().toISOString();
 
-  if (window.gtag) {
-    // Fire general whatsapp_clck with specific button_type properties
-    window.gtag('event', 'whatsapp_click', {
+  // 1. Diagnostics logs for real-time validation check
+  console.log(`[GTM-Diagnostics] WhatsApp click detected. Type: ${buttonType}`);
+
+  // 2. Prevent duplicate tracking while satisfying all specific requirements
+  if (buttonType === 'floating') {
+    // Exact GA4 event requested by customer
+    if (window.gtag) {
+      window.gtag('event', 'floating_whatsapp_click', {
+        event_category: 'engagement',
+        event_label: 'Floating WhatsApp Button',
+        page_title: document.title,
+        page_path: window.location.pathname,
+        page_location: window.location.href,
+        device_type: ctx.device_type,
+        timestamp: timestamp
+      });
+      console.log('[GTM-Diagnostics] Fired GA4 event: floating_whatsapp_click');
+    }
+
+    // Exact GTM dataLayer push requested by customer
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'floating_whatsapp_click',
+      button_type: 'floating',
+      page_name: document.title,
+      page_path: window.location.pathname,
+      page_location: window.location.href,
+      device_type: ctx.device_type,
+      timestamp: timestamp,
+      is_conversion: true
+    });
+    console.log('[GTM-Diagnostics] Pushed to dataLayer: floating_whatsapp_click');
+
+  } else if (buttonType === 'navbar' || buttonType === 'navbar_support') {
+    // Exact GA4 event requested by customer
+    if (window.gtag) {
+      window.gtag('event', 'navbar_whatsapp_click', {
+        event_category: 'engagement',
+        event_label: 'Navbar WhatsApp Support',
+        page_title: document.title,
+        page_path: window.location.pathname,
+        page_location: window.location.href,
+        device_type: ctx.device_type,
+        timestamp: timestamp
+      });
+      console.log('[GTM-Diagnostics] Fired GA4 event: navbar_whatsapp_click');
+    }
+
+    // Exact GTM dataLayer push requested by customer
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'navbar_whatsapp_click',
+      button_type: 'navbar_support',
+      page_name: document.title,
+      page_path: window.location.pathname,
+      page_location: window.location.href,
+      device_type: ctx.device_type,
+      timestamp: timestamp,
+      is_conversion: true
+    });
+    console.log('[GTM-Diagnostics] Pushed to dataLayer: navbar_whatsapp_click');
+
+  } else {
+    // Direct standard fallback clicks tracking (support, checkout, hero, footer, faq)
+    const clickEventName = `${buttonType}_whatsapp_click`;
+
+    if (window.gtag) {
+      // Fire general whatsapp_click with specific button_type properties
+      window.gtag('event', 'whatsapp_click', {
+        button_type: buttonType,
+        page_name: ctx.page_name,
+        page_path: ctx.page_path,
+        page_location: ctx.page_location,
+        device_type: ctx.device_type,
+        referrer_source: ctx.referrer_source,
+        session_source: ctx.session_source,
+        timestamp: timestamp
+      });
+
+      // Fire exact custom event
+      window.gtag('event', clickEventName, {
+        button_type: buttonType,
+        page_name: ctx.page_name,
+        page_path: ctx.page_path,
+        page_location: ctx.page_location,
+        device_type: ctx.device_type,
+        referrer_source: ctx.referrer_source,
+        session_source: ctx.session_source,
+        timestamp: timestamp
+      });
+    }
+
+    // Push to general GTM dataLayer
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'whatsapp_click',
       button_type: buttonType,
       page_name: ctx.page_name,
       page_path: ctx.page_path,
       page_location: ctx.page_location,
       device_type: ctx.device_type,
       referrer_source: ctx.referrer_source,
-      session_source: ctx.session_source
+      session_source: ctx.session_source,
+      time_clicked: timestamp,
+      is_conversion: true
     });
 
-    // Fire exact custom events requested by user: floating_whatsapp_click, support_whatsapp_click, checkout_whatsapp_click
-    window.gtag('event', clickEventName, {
+    window.dataLayer.push({
+      event: clickEventName,
       button_type: buttonType,
       page_name: ctx.page_name,
       page_path: ctx.page_path,
       page_location: ctx.page_location,
-      device_type: ctx.device_type,
-      referrer_source: ctx.referrer_source,
-      session_source: ctx.session_source
+      timestamp: timestamp,
+      is_conversion: true
     });
+
+    console.log(`[GTM-Diagnostics] Fired general WA click events for type: ${buttonType}`);
   }
-
-  // Push to GTM structure
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'whatsapp_click',
-    button_type: buttonType,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    page_location: ctx.page_location,
-    device_type: ctx.device_type,
-    referrer_source: ctx.referrer_source,
-    session_source: ctx.session_source,
-    time_clicked: new Date().toISOString(),
-    is_conversion: true
-  });
-
-  // GTM trigger for the specific button event
-  window.dataLayer.push({
-    event: clickEventName,
-    button_type: buttonType,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    page_location: ctx.page_location,
-    is_conversion: true
-  });
 };
 
 /**
