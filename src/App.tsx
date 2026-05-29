@@ -20,7 +20,6 @@ import ManagementPlans from './components/ManagementPlans';
 import CheckoutSection from './components/CheckoutSection';
 import FAQContact from './components/FAQContact';
 import Footer from './components/Footer';
-import WhatsAppLoading from './components/WhatsAppLoading';
 
 // Static Data
 import { PACKAGES, TESTIMONIALS, RESTAURANT_FEATURES } from './data';
@@ -37,18 +36,13 @@ import {
 } from './lib/analytics';
 
 export default function App() {
-  // Read hash or pathname on initialize to support deep linking and accurate initial GA reports
+  // Read hash on initialize to support deep linking and accurate initial GA reports
   const [activeTab, setActiveTab] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      if (window.location.pathname === '/whatsapploading') {
-        return 'whatsapploading';
-      }
-      if (window.location.hash) {
-        const hash = window.location.hash.substring(1);
-        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'whatsapploading'];
-        if (validTabs.includes(hash)) {
-          return hash;
-        }
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact'];
+      if (validTabs.includes(hash)) {
+        return hash;
       }
     }
     return 'landing';
@@ -57,28 +51,18 @@ export default function App() {
   const [activeTestimonial, setActiveTestimonial] = useState<number>(0);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
-  // Expose global trigger for WhatsApp redirects with custom dedicated loading page + direct analytics tracking
+  // Expose global trigger for WhatsApp redirects with direct analytics tracking
   useEffect(() => {
     (window as any).triggerWhatsAppPopup = (
       buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq',
       url: string = 'https://wa.me/94776826937'
     ) => {
-      // 1. Instantly dispatch original button click tracking (keeps it robust)
+      // Instantly dispatch original button click tracking (keeps it robust)
       trackWhatsAppClick(buttonType);
 
-      // 2. Map buttonType to the source query parameters requested by customer
-      let sourceParam = 'contact_whatsapp';
-      if (buttonType === 'floating') {
-        sourceParam = 'floating_whatsapp';
-      } else if (buttonType === 'navbar' || buttonType === 'navbar_support') {
-        sourceParam = 'navbar_hotline';
-      }
-
-      // 3. Perform HTML5 history push state so the back button can function correctly
+      // Direct window open launch
       if (typeof window !== 'undefined') {
-        const targetPath = `/whatsapploading?source=${sourceParam}&dest=${encodeURIComponent(url)}`;
-        window.history.pushState({ tab: 'whatsapploading' }, '', targetPath);
-        setActiveTab('whatsapploading');
+        window.open(url, '_blank');
       }
     };
 
@@ -89,9 +73,7 @@ export default function App() {
 
   // Synchronize dynamic URL update and send manual page views to Google Analytics
   useEffect(() => {
-    if (activeTab === 'whatsapploading') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (activeTab === 'contact') {
+    if (activeTab === 'contact') {
       setTimeout(() => {
         const contactSection = document.getElementById('faq-contact-segment');
         if (contactSection) {
@@ -127,30 +109,19 @@ export default function App() {
       case 'contact':
         title = 'YJMWeb - Contact';
         break;
-      case 'whatsapploading':
-        title = 'Connecting to WhatsApp Support';
-        break;
       default:
         title = 'YJMWeb - Home';
     }
 
-    if (activeTab === 'whatsapploading') {
-      document.title = title;
-      // Do not replace hash or rewrite history, as the URL query parameters are already pushed by triggerWhatsAppPopup
-    } else {
-      // Call unified tracker for page views
-      const routerPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
-      trackPageView(title, routerPath);
+    // Call unified tracker for page views
+    const routerPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
+    trackPageView(title, routerPath);
 
-      // Mutate the hash suffix to visually represent routing in browser and let GA feel URL state changes
-      const targetHash = activeTab === 'landing' ? '' : `#${activeTab}`;
-      if (typeof window !== 'undefined') {
-        // Safe check to verify we write cleanly back to '/' pathname on general tabs
-        if (window.location.hash !== targetHash || window.location.pathname !== '/') {
-          const cleanUrl = '/' + targetHash;
-          window.history.replaceState(null, '', cleanUrl);
-        }
-      }
+    // Mutate the hash suffix to visually represent routing in browser and let GA feel URL state changes
+    const targetHash = activeTab === 'landing' ? '' : `#${activeTab}`;
+    if (typeof window !== 'undefined' && window.location.hash !== targetHash) {
+      const cleanUrl = window.location.pathname + targetHash;
+      window.history.replaceState(null, '', cleanUrl);
     }
   }, [activeTab]);
 
@@ -250,28 +221,20 @@ export default function App() {
     };
   }, [activeTab]);
 
-  // Synchronize navigation (e.g. browser back/forward buttons)
+  // Synchronize reverse hash change navigation (e.g. browser back/forward buttons)
   useEffect(() => {
-    const handleNavigationChange = () => {
+    const handleHashChange = () => {
       if (typeof window !== 'undefined') {
-        if (window.location.pathname === '/whatsapploading') {
-          setActiveTab('whatsapploading');
-          return;
-        }
         const hash = window.location.hash.substring(1) || 'landing';
-        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'whatsapploading'];
+        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact'];
         if (validTabs.includes(hash)) {
           setActiveTab(hash);
         }
       }
     };
 
-    window.addEventListener('hashchange', handleNavigationChange);
-    window.addEventListener('popstate', handleNavigationChange);
-    return () => {
-      window.removeEventListener('hashchange', handleNavigationChange);
-      window.removeEventListener('popstate', handleNavigationChange);
-    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleChoosePackageFromHero = () => {
@@ -309,18 +272,6 @@ export default function App() {
       setShowSuccessModal(false);
     }, 8000);
   };
-
-  if (activeTab === 'whatsapploading') {
-    return (
-      <WhatsAppLoading 
-        onBackToApp={() => {
-          if (typeof window !== 'undefined') {
-            window.history.back();
-          }
-        }}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-dark-bg text-neutral-100 font-sans relative overflow-x-hidden selection:bg-neon-blue/30 selection:text-white" id="yjmweb-master-root">
