@@ -1,6 +1,6 @@
 {
   "name": "YJMWeb",
-  "description": "Futuristic website design and website management service for restaurants and small businesses.",
+  "description": "Futuristic website design and website management service for small businesses, startups, and personal brands.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

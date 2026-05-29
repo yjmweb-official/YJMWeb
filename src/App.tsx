@@ -398,7 +398,7 @@ export default function App() {
                 <div className="pt-16 max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4" id="hero-stats-bar">
                   <div className="p-4 bg-white/2.5 border border-white/5 rounded-xl text-center">
                     <span className="text-xs font-mono text-neutral-500 block">Responsive Design</span>
-                    <span className="text-sm font-semibold text-white mt-1 block">98+ Mobile Scores</span>
+                    <span className="text-sm font-semibold text-white mt-1 block">99+ Mobile Scores</span>
                   </div>
                   <div className="p-4 bg-white/2.5 border border-white/5 rounded-xl text-center">
                     <span className="text-xs font-mono text-neutral-500 block">Ongoing Updates</span>
@@ -416,7 +416,7 @@ export default function App() {
                 <div className="text-center max-w-2xl mx-auto space-y-3">
                   <span className="text-4xs font-mono uppercase tracking-widest text-neon-purple">Modern Web Agency</span>
                   <h2 className="text-2xl sm:text-3xl font-display font-medium text-white">
-                    Premium Solutions Engineered for Hospitality Owners
+                    Premium Solutions Engineered for Growing Businesses
                   </h2>
                   <p className="text-neutral-400 text-xs sm:text-sm">
                     We eliminate the frustration of templates. YJMWeb is your dedicated server, design, analytics, and SEO master.
@@ -427,11 +427,11 @@ export default function App() {
                   <div className="p-6 bg-neutral-950 rounded-2xl border border-white/5 flex flex-col justify-between hover:border-white/10 transition-all group">
                     <div className="space-y-4">
                       <div className="w-10 h-10 rounded-xl bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center text-neon-blue">
-                        <Utensils className="w-5 h-5" />
+                        <Globe className="w-5 h-5" />
                       </div>
-                      <h3 className="text-base font-display font-medium text-white group-hover:text-neon-blue transition-colors">Restaurant Websites</h3>
+                      <h3 className="text-base font-display font-medium text-white group-hover:text-neon-blue transition-colors">Custom Websites</h3>
                       <p className="text-neutral-400 text-xs leading-relaxed">
-                        Say goodbye to clumsy generic structures. We engineer tailored high-index layouts with fast dish-filtering digital menu panels.
+                        Modern, fast, and professionally designed websites tailored to your business goals. Built for performance, usability, and growth.
                       </p>
                     </div>
                   </div>
@@ -443,7 +443,7 @@ export default function App() {
                       </div>
                       <h3 className="text-base font-display font-medium text-white group-hover:text-neon-purple transition-colors">Website Management</h3>
                       <p className="text-neutral-400 text-xs leading-relaxed">
-                        Avoid dealing with complicated site editors. Text our crew with pricing adjustments or custom promo assets, and we execute the revisions immediately.
+                        Easy website management without technical hassle. Send updates, content changes, or new requirements and we'll handle everything for you.
                       </p>
                     </div>
                   </div>
@@ -453,9 +453,9 @@ export default function App() {
                       <div className="w-10 h-10 rounded-xl bg-neon-pink/10 border border-neon-pink/20 flex items-center justify-center text-neon-pink">
                         <Gauge className="w-5 h-5" />
                       </div>
-                      <h3 className="text-base font-display font-medium text-white group-hover:text-neon-pink transition-colors">Search & Booking Boosts</h3>
+                      <h3 className="text-base font-display font-medium text-white group-hover:text-neon-pink transition-colors">Performance & Visibility</h3>
                       <p className="text-neutral-400 text-xs leading-relaxed">
-                        Enable commission-free seat bookings mapping straight to your business dashboard. Integrated with high-performance localized index triggers.
+                        Responsive on all devices, optimized for search engines, fast loading, and designed to provide a smooth user experience.
                       </p>
                     </div>
                   </div>
@@ -507,10 +507,10 @@ export default function App() {
                   <div className="lg:col-span-5 space-y-5">
                     <span className="text-4xs font-mono uppercase tracking-widest text-neon-blue">Design Philosophy</span>
                     <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white leading-tight">
-                      Why Busy Restaurant Owners Choose YJMWeb
+                      Why Growing Businesses Choose YJMWeb
                     </h2>
-                    <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                      Restaurant operators are specialists in flavor and guest hospitality—not code, domain mapping, or mobile diagnostic tools. We bridge the gap completely.
+                    <p className="text-neutral-450 text-xs sm:text-sm leading-relaxed">
+                      Business operators are specialists in growth and delivering client value—not code, domain mapping, or mobile diagnostic tools. We bridge the gap completely.
                     </p>
 
                     <div className="pt-2">
@@ -527,10 +527,10 @@ export default function App() {
                     <div className="p-5 bg-black/60 rounded-xl border border-white/5 space-y-2">
                       <h4 className="text-sm font-semibold text-white flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-neon-blue inline-block" />
-                        Commission-Free Operations
+                        Direct Client Channels
                       </h4>
                       <p className="text-neutral-400 text-xs leading-relaxed">
-                        Skip paying up to 30% to aggregation platforms. Accept bookings directly on your custom, SSL-secured dot-com layout.
+                        Skip paying up to 30% to middleman directories or scheduling aggregators. Capture bookings directly on your custom, SSL-secured dot-com layout.
                       </p>
                     </div>
 
@@ -540,7 +540,7 @@ export default function App() {
                         Lightning Speed Loads
                       </h4>
                       <p className="text-neutral-400 text-xs leading-relaxed">
-                        Optimized WebP visuals and high-performance CDN support mean your mobile menu loads instantly for visitors on weak cellular connections.
+                        Optimized WebP visuals and high-performance CDN support mean your product listings or service portfolios load instantly for visitors.
                       </p>
                     </div>
 
@@ -550,7 +550,7 @@ export default function App() {
                         Zero Site Editor Pain
                       </h4>
                       <p className="text-neutral-400 text-xs leading-relaxed">
-                        Never spend late nights configuring layouts or correcting mobile alignment errors. Just chat/email us pricing changes, and we execute them immediately.
+                        Never spend late nights configuring layouts or correcting mobile alignment errors. Just chat/email us changes, and we execute them immediately.
                       </p>
                     </div>
 
@@ -560,7 +560,7 @@ export default function App() {
                         Seamless Local Ranking
                       </h4>
                       <p className="text-neutral-400 text-xs leading-relaxed">
-                        We map out metadata headers, Schema structures, and verify map assets so prospective diners locate your restaurant near them.
+                        We map out metadata headers, Schema structures, and verify map listings so prospective clients locate your business near them.
                       </p>
                     </div>
                   </div>
@@ -584,9 +584,6 @@ export default function App() {
                       01
                     </div>
                     <h3 className="font-display font-medium text-white text-base">Select & Configure</h3>
-                    <p className="text-neutral-400 text-xs max-w-xs mx-auto leading-relaxed">
-                      Choose your core layout, configure necessary add-ons, select a package, and click to dispatch.
-                    </p>
                   </div>
 
                   <div className="text-center space-y-4 relative z-10">
@@ -594,9 +591,6 @@ export default function App() {
                       02
                     </div>
                     <h3 className="font-display font-medium text-white text-base">Live WhatsApp Review</h3>
-                    <p className="text-neutral-400 text-xs max-w-xs mx-auto leading-relaxed">
-                      Your assembled configuration triggers custom reviews with our design team to refine visual assets.
-                    </p>
                   </div>
 
                   <div className="text-center space-y-4 relative z-10">
@@ -604,9 +598,6 @@ export default function App() {
                       03
                     </div>
                     <h3 className="font-display font-medium text-white text-base">Prism Launch</h3>
-                    <p className="text-neutral-400 text-xs max-w-xs mx-auto leading-relaxed">
-                      Once design proofs are locked, we deploy your site to active CDNs, configure domain SSL mappings, and hand over management channels.
-                    </p>
                   </div>
                 </div>
               </section>
@@ -615,7 +606,7 @@ export default function App() {
               <section className="space-y-10" id="testimonials-segment">
                 <div className="text-center max-w-xl mx-auto space-y-2">
                   <span className="text-4xs font-mono uppercase tracking-widest text-neon-pink">Client Success Profiles</span>
-                  <h2 className="text-2xl sm:text-3xl font-display font-medium text-white">Loved by Active Culinary Teams</h2>
+                  <h2 className="text-2xl sm:text-3xl font-display font-medium text-white">Loved by Growing Businesses & Brands</h2>
                 </div>
 
                 <div className="max-w-4xl mx-auto relative">
@@ -721,7 +712,7 @@ export default function App() {
                 <span className="text-4xs font-mono uppercase tracking-widest text-neon-blue">Dynamic Arsenal</span>
                 <h1 className="text-3xl sm:text-4xl font-display font-medium text-white">Engineered Web Features</h1>
                 <p className="text-neutral-400 text-xs sm:text-sm">
-                  We deploy cutting-edge functional components optimized specifically for the modern hospitality landscape. Explore standard features interactively on our mock smartphone below.
+                  We deploy cutting-edge functional components optimized specifically for the modern business landscape. Explore standard features interactively on our mock smartphone below.
                 </p>
               </div>
 
@@ -745,7 +736,7 @@ export default function App() {
                   <div className="p-4 bg-neutral-950/40 border border-white/2.5 rounded-xl flex items-start gap-2.5">
                     <CheckCircle className="w-4 h-4 text-neon-blue shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-white">✅ Restaurant Information Section</strong>
+                      <strong className="text-white">✅ Business Information Section</strong>
                       <p className="text-neutral-400 text-2xs mt-0.5 leading-normal">Operational details, team biographies and historical storyboards beautifully placed.</p>
                     </div>
                   </div>
@@ -753,8 +744,8 @@ export default function App() {
                   <div className="p-4 bg-neutral-950/40 border border-white/2.5 rounded-xl flex items-start gap-2.5">
                     <CheckCircle className="w-4 h-4 text-neon-blue shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-white">✅ Digital Menu Display Page</strong>
-                      <p className="text-neutral-400 text-2xs mt-0.5 leading-normal">Legible food listings featuring responsive images, tag alerts and item prices.</p>
+                      <strong className="text-white">✅ Digital Showcase catalog</strong>
+                      <p className="text-neutral-400 text-2xs mt-0.5 leading-normal">Legible service listings featuring responsive images, tag alerts and item details.</p>
                     </div>
                   </div>
 
@@ -778,7 +769,7 @@ export default function App() {
                     <CheckCircle className="w-4 h-4 text-neon-blue shrink-0 mt-0.5" />
                     <div>
                       <strong className="text-white">✅ Photo Showcase Gallery</strong>
-                      <p className="text-neutral-400 text-2xs mt-0.5 leading-normal">Optimized culinary showcase photos to make meals look mouthwatering instantly.</p>
+                      <p className="text-neutral-400 text-2xs mt-0.5 leading-normal">Optimized visual showcase photos to make services and products look amazing instantly.</p>
                     </div>
                   </div>
 
@@ -786,7 +777,7 @@ export default function App() {
                     <CheckCircle className="w-4 h-4 text-neon-blue shrink-0 mt-0.5" />
                     <div>
                       <strong className="text-white">✅ Promotions & Announcements</strong>
-                      <p className="text-neutral-400 text-2xs mt-0.5 leading-normal">Banners specifically engineered for Happy-Hour coupons or seasonal details.</p>
+                      <p className="text-neutral-400 text-2xs mt-0.5 leading-normal">Banners specifically engineered for campaign discount coupons or seasonal details.</p>
                     </div>
                   </div>
 
@@ -829,7 +820,7 @@ export default function App() {
                 <span className="text-4xs font-mono uppercase tracking-widest text-neon-purple">Solutions Pricing</span>
                 <h1 className="text-3xl sm:text-4xl font-display font-medium text-white">Futuristic Web Packages</h1>
                 <p className="text-neutral-400 text-xs sm:text-sm">
-                  We maintain zero hidden fees. Select standard packages suited to your restaurant size and configure optional setup parameters interactively.
+                  We maintain zero hidden fees. Select standard packages suited to your business requirements and configure optional setup parameters interactively.
                 </p>
               </div>
 

@@ -105,7 +105,7 @@ export default function ManagementPlans({ onSelectPlan }: ManagementPlansProps) 
             </div>
 
             <p className="text-neutral-400 text-xs leading-relaxed mb-6">
-              Guaranteed security updates, rapid support, and regular indexing optimizations for 90 days. Ideal for active, high-traffic restaurant operations.
+              Guaranteed security updates, rapid support, and regular indexing optimizations for 90 days. Ideal for active, high-traffic business operations.
             </p>
 
             <div className="space-y-3.5 mb-8">

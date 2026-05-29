@@ -39,7 +39,7 @@ export default function Footer({ onNavigateTab }: FooterProps) {
             </div>
 
             <p className="text-neutral-400 text-xs leading-relaxed max-w-sm">
-              Designing and maintaining premium, future-facing website solutions that optimize direct traffic, menu readability and mobile-friendly reservations for busy modern restaurants.
+              Designing and maintaining premium, future-facing website solutions that optimize direct business leads, visual product catalog displays, and mobile-friendly bookings for growing modern businesses.
             </p>
 
             <span className="text-4xs font-mono text-neutral-600 block uppercase tracking-widest">

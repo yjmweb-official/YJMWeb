@@ -87,7 +87,7 @@ export const ADDONS: AddOn[] = [
     id: 'google_analytics',
     name: 'Google Analytics & Console Setup',
     price: 20,
-    description: 'Establish live tracking of website visitors, source channels, and popular menu choices.',
+    description: 'Establish live tracking of website visitors, source channels, and popular service or product catalog pages.',
     category: 'setup'
   },
   {
@@ -136,7 +136,7 @@ export const MANAGEMENT_PLANS: ManagementPlan[] = [
     discountMultiplier: 1.0,
     benefits: [
       'Billed month-to-month, cancel anytime',
-      'Monthly menu and text adjustments',
+      'Monthly website content and text adjustments',
       'Server health checking & security monitoring',
       'Responsive email tech support setup'
     ]
@@ -241,7 +241,7 @@ export const TESTIMONIALS = [
   {
     name: 'Elena Rostova',
     role: 'Operations Director',
-    restaurant: 'Velvet & Premium Lounge',
+    restaurant: 'Velvet Premium Brand',
     avatarText: 'ER',
     rating: 5,
     text: 'The 3-month management plan is a lifesaver. We introduce seasonal products every 2 weeks. I text the YJMWeb team and the changes appear beautifully styled on our mobile site by the next morning. It is like having a full-time in-house developer.'

@@ -183,7 +183,7 @@ export default function FAQContact() {
                     onChange={handleFormChange}
                     required
                     rows={3}
-                    placeholder="Describe your current restaurant layout or describe any custom features you need..."
+                    placeholder="Describe your current business layout or describe any custom features you need..."
                     id="contact-query"
                     className="w-full bg-neutral-900/60 border border-white/5 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-neon-purple transition-all placeholder:text-neutral-600"
                   />

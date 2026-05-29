@@ -388,7 +388,7 @@ export default function LogoConcepts() {
               Order Custom Brand Identity Blueprints
             </h4>
             <p className="text-neutral-400 text-xs max-w-lg mx-auto leading-relaxed">
-              Skip static stock templates. Our design crew will draft customized vector SVG logo files matching your specific restaurant tone for a single transparent flat-rate of <strong>$15</strong>.
+              Skip static stock templates. Our design crew will draft customized vector SVG logo files matching your specific company tone for a single transparent flat-rate of <strong>$15</strong>.
             </p>
           </div>
 
@@ -397,13 +397,13 @@ export default function LogoConcepts() {
               <div>
                 <label className="text-xs font-mono text-neutral-400 uppercase block mb-1.5 flex items-center gap-1.5">
                   <Palette className="w-3.5 h-3.5 text-neon-blue" />
-                  Your Restaurant / Brand Name *
+                  Your Business / Brand Name *
                 </label>
                 <input
                   type="text"
                   value={logoBrandName}
                   onChange={(e) => setLogoBrandName(e.target.value)}
-                  placeholder="e.g. Kyoto Sushi Lounge"
+                  placeholder="e.g. Apex Commerce Group"
                   className="w-full bg-neutral-950 p-3 rounded-lg border border-white/10 focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all text-sm placeholder:text-neutral-700 text-white"
                   required
                 />
@@ -478,7 +478,7 @@ export default function LogoConcepts() {
                   <Check className="w-10 h-10 text-green-400 mb-2 animate-bounce" />
                   <h5 className="text-white text-base font-semibold">Logo Order Compiled!</h5>
                   <p className="text-xs text-neutral-400 max-w-sm leading-relaxed mt-1">
-                    We compiled your aesthetic desires and dispatched them securely over WhatsApp. We will trigger visual proofs for your restaurant immediately!
+                    We compiled your aesthetic desires and dispatched them securely over WhatsApp. We will trigger visual proofs for your brand identity immediately!
                   </p>
                 </div>
               </div>
