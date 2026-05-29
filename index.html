@@ -6,7 +6,10 @@
     <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
 
     <!-- Google Tag Manager -->
-    <script>
+    <script data-cfasync="false">
+      if (!window.dataLayer) {
+        window.dataLayer = [];
+      }
       (function(w,d,s,l,i){
         w[l]=w[l]||[];
         w[l].push({
@@ -21,20 +24,13 @@
         j.async=true;
         j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
 
-        // When GTM finishes loading we print verification feedback
-        j.onload = function() {
-          console.log('GTM Loaded Successfully');
-          console.log('[GTM] Container successfully registered on dataLayer.');
-        };
-
         f.parentNode.insertBefore(j,f);
-
       })(window,document,'script','dataLayer','GTM-KRFJVQRW');
     </script>
     <!-- End Google Tag Manager -->
 
     <!-- GTM/GA4 Scripts Diagnostic Logger -->
-    <script>
+    <script data-cfasync="false">
       (function() {
         window.dataLayer = window.dataLayer || [];
         console.log('[GTM-Diagnostics] dataLayer initialized:', window.dataLayer);
@@ -52,14 +48,16 @@
     </script>
 
     <!-- Google Analytics 4 (GA4) Direct Connection -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QFY8QZW1BY"></script>
-    <script>
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=G-QFY8QZW1BY"></script>
+    <script data-cfasync="false">
       window.dataLayer = window.dataLayer || [];
-      function gtag(){
-        dataLayer.push(arguments);
+      if (!window.gtag) {
+        window.gtag = function(){
+          dataLayer.push(arguments);
+        }
       }
-      gtag('js', new Date());
-      gtag('config', 'G-QFY8QZW1BY', { 
+      window.gtag('js', new Date());
+      window.gtag('config', 'G-QFY8QZW1BY', { 
         send_page_view: true,
         cookie_flags: 'max-age=7200;Secure;SameSite=None'
       });
