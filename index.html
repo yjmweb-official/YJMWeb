@@ -7,10 +7,28 @@
 
     <!-- Google Tag Manager -->
     <script>
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      (function(w,d,s,l,i){
+        w[l]=w[l]||[];
+        w[l].push({
+          'gtm.start': new Date().getTime(),
+          event:'gtm.js'
+        });
+
+        var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),
+            dl=l!='dataLayer' ? '&l='+l : '';
+
+        j.async=true;
+        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+
+        // When GTM finishes loading we print verification feedback
+        j.onload = function() {
+          console.log('GTM Loaded Successfully');
+          console.log('[GTM] Container successfully registered on dataLayer.');
+        };
+
+        f.parentNode.insertBefore(j,f);
+
       })(window,document,'script','dataLayer','GTM-KRFJVQRW');
     </script>
     <!-- End Google Tag Manager -->
@@ -18,11 +36,13 @@
     <!-- GTM/GA4 Scripts Diagnostic Logger -->
     <script>
       (function() {
+        window.dataLayer = window.dataLayer || [];
         console.log('[GTM-Diagnostics] dataLayer initialized:', window.dataLayer);
         window.addEventListener('load', function() {
           setTimeout(function() {
             if (window.google_tag_manager && window.google_tag_manager['GTM-KRFJVQRW']) {
               console.log('%c[GTM-Diagnostics] SUCCESS: GTM-KRFJVQRW container is verified and executing successfully!', 'color: #10B981; font-weight: bold;');
+              console.log('GTM Loaded Successfully');
             } else {
               console.warn('[GTM-Diagnostics] WARNING: GTM-KRFJVQRW container elements not yet found on window.');
             }

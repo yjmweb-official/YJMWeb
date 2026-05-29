@@ -77,7 +77,7 @@ export default function Navbar({ activeTab, setActiveTab, onNavigateToCheckout }
               href="https://wa.me/94776826937" 
               target="_blank" 
               rel="noreferrer"
-              onClick={() => trackWhatsAppClick('navbar')}
+              onClick={() => trackWhatsAppClick('navbar_support')}
               className="text-neutral-400 hover:text-green-400 transition-all flex items-center justify-center p-2 rounded-full bg-white/5 border border-white/5 hover:border-green-400/20 shadow-sm"
               id="navbar-wa-text-link"
               title="Chat on WhatsApp"
