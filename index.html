@@ -1,21 +1,74 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Preconnect to Google domains to speed up tracking loads -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
+
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-KRFJVQRW');</script>
+    <script>
+      // Initialize dataLayer immediately at the very beginning of script load
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        'gtm.start': new Date().getTime(),
+        event: 'gtm.js'
+      });
+
+      // Standard Google Tag Manager loader
+      (function(w,d,s,l,i){
+        w[l]=w[l]||[];
+        var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),
+            dl=l!='dataLayer' ? '&l='+l : '';
+        j.async=true;
+        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-KRFJVQRW');
+    </script>
     <!-- End Google Tag Manager -->
-    <!-- Google tag (gtag.js) -->
+
+    <!-- GTM/GA4 Script Loader and Diagnostics Logger -->
+    <script>
+      (function() {
+        console.log('[GTM-Diagnostics] Tagging system initialized.');
+        console.log('[GTM-Diagnostics] dataLayer content:', window.dataLayer);
+
+        // Verification checks
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            if (window.google_tag_manager && window.google_tag_manager['GTM-KRFJVQRW']) {
+              console.log('%c[GTM-Diagnostics] SUCCESS: Google Tag Manager container (GTM-KRFJVQRW) parsed and running smoothly!', 'color: #10B981; font-weight: bold; font-size: 11px;');
+            } else {
+              console.warn('[GTM-Diagnostics] WARNING: GTM container elements are not yet registered on the window object. Analyzing triggers...');
+              var scripts = document.getElementsByTagName('script');
+              var isPresentInDOM = false;
+              for (var i = 0; i < scripts.length; i++) {
+                if (scripts[i].src && scripts[i].src.includes('gtm.js?id=GTM-KRFJVQRW')) {
+                  isPresentInDOM = true;
+                  break;
+                }
+              }
+              if (isPresentInDOM) {
+                console.log('[GTM-Diagnostics] GTM tag exists in page DOM, but may be resolving asynchronously or blocked by privacy configurations.');
+              } else {
+                console.error('%c[GTM-Diagnostics] FATAL ERROR: GTM-KRFJVQRW tag was completely stripped or blocked!', 'color: #EF4444; font-weight: bold;');
+              }
+            }
+          }, 1000);
+        });
+      })();
+    </script>
+
+    <!-- Google Analytics 4 fallback connection -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QFY8QZW1BY"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
-      gtag('config', 'G-QFY8QZW1BY', { send_page_view: false });
+      gtag('config', 'G-QFY8QZW1BY', { 
+        send_page_view: false,
+        cookie_flags: 'max-age=7200;Secure;SameSite=None'
+      });
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
