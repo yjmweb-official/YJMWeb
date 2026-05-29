@@ -8,6 +8,16 @@ declare global {
 
 const MEASUREMENT_ID = 'G-QFY8QZW1BY';
 
+// Ensure window.dataLayer and window.gtag are always safely defined (GTM-Optional tracking queue)
+if (typeof window !== 'undefined') {
+  window.dataLayer = window.dataLayer || [];
+  if (!window.gtag) {
+    window.gtag = function() {
+      window.dataLayer.push(arguments);
+    };
+  }
+}
+
 // Utility helper to gather marketing and traffic source query parameters (sessions/attribution)
 const getSessionSource = (): string => {
   if (typeof window === 'undefined') return 'organic';
