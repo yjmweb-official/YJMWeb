@@ -20,6 +20,7 @@ import ManagementPlans from './components/ManagementPlans';
 import CheckoutSection from './components/CheckoutSection';
 import FAQContact from './components/FAQContact';
 import Footer from './components/Footer';
+import WhatsAppLoading from './components/WhatsAppLoading';
 
 // Static Data
 import { PACKAGES, TESTIMONIALS, RESTAURANT_FEATURES } from './data';
@@ -36,13 +37,18 @@ import {
 } from './lib/analytics';
 
 export default function App() {
-  // Read hash on initialize to support deep linking and accurate initial GA reports
+  // Read hash or pathname on initialize to support deep linking and accurate initial GA reports
   const [activeTab, setActiveTab] = useState<string>(() => {
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const hash = window.location.hash.substring(1);
-      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact'];
-      if (validTabs.includes(hash)) {
-        return hash;
+    if (typeof window !== 'undefined') {
+      if (window.location.pathname === '/whatsapploading') {
+        return 'whatsapploading';
+      }
+      if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'whatsapploading'];
+        if (validTabs.includes(hash)) {
+          return hash;
+        }
       }
     }
     return 'landing';
@@ -51,30 +57,29 @@ export default function App() {
   const [activeTestimonial, setActiveTestimonial] = useState<number>(0);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
-  // Global WhatsApp Redirect Popup engine
-  const [whatsappPopup, setWhatsappPopup] = useState<{
-    isOpen: boolean;
-    buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq';
-    whatsappUrl: string;
-    countdown: number;
-  }>({ isOpen: false, buttonType: 'support', whatsappUrl: '', countdown: 3 });
-
-  // Expose global trigger for WhatsApp redirects with custom popup + direct analytics tracking
+  // Expose global trigger for WhatsApp redirects with custom dedicated loading page + direct analytics tracking
   useEffect(() => {
     (window as any).triggerWhatsAppPopup = (
       buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq',
       url: string = 'https://wa.me/94776826937'
     ) => {
-      // 1. Instantly capture tracking details and dispatch GA4 event first
+      // 1. Instantly dispatch original button click tracking (keeps it robust)
       trackWhatsAppClick(buttonType);
 
-      // 2. Open our modern neon popup immediately
-      setWhatsappPopup({
-        isOpen: true,
-        buttonType,
-        whatsappUrl: url,
-        countdown: 3
-      });
+      // 2. Map buttonType to the source query parameters requested by customer
+      let sourceParam = 'contact_whatsapp';
+      if (buttonType === 'floating') {
+        sourceParam = 'floating_whatsapp';
+      } else if (buttonType === 'navbar' || buttonType === 'navbar_support') {
+        sourceParam = 'navbar_hotline';
+      }
+
+      // 3. Perform HTML5 history push state so the back button can function correctly
+      if (typeof window !== 'undefined') {
+        const targetPath = `/whatsapploading?source=${sourceParam}&dest=${encodeURIComponent(url)}`;
+        window.history.pushState({ tab: 'whatsapploading' }, '', targetPath);
+        setActiveTab('whatsapploading');
+      }
     };
 
     return () => {
@@ -82,35 +87,11 @@ export default function App() {
     };
   }, []);
 
-  useEffect(() => {
-    let interval: any;
-    let redirectTimer: any;
-
-    if (whatsappPopup.isOpen) {
-      // Countdown tick every second
-      interval = setInterval(() => {
-        setWhatsappPopup(prev => ({
-          ...prev,
-          countdown: Math.max(0, prev.countdown - 1)
-        }));
-      }, 1000);
-
-      // Redirect after 2.5 seconds
-      redirectTimer = setTimeout(() => {
-        window.open(whatsappPopup.whatsappUrl, '_blank');
-        setWhatsappPopup(prev => ({ ...prev, isOpen: false }));
-      }, 2500);
-    }
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(redirectTimer);
-    };
-  }, [whatsappPopup.isOpen, whatsappPopup.whatsappUrl]);
-
   // Synchronize dynamic URL update and send manual page views to Google Analytics
   useEffect(() => {
-    if (activeTab === 'contact') {
+    if (activeTab === 'whatsapploading') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (activeTab === 'contact') {
       setTimeout(() => {
         const contactSection = document.getElementById('faq-contact-segment');
         if (contactSection) {
@@ -146,19 +127,30 @@ export default function App() {
       case 'contact':
         title = 'YJMWeb - Contact';
         break;
+      case 'whatsapploading':
+        title = 'Connecting to WhatsApp Support';
+        break;
       default:
         title = 'YJMWeb - Home';
     }
 
-    // Call unified tracker for page views
-    const routerPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
-    trackPageView(title, routerPath);
+    if (activeTab === 'whatsapploading') {
+      document.title = title;
+      // Do not replace hash or rewrite history, as the URL query parameters are already pushed by triggerWhatsAppPopup
+    } else {
+      // Call unified tracker for page views
+      const routerPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
+      trackPageView(title, routerPath);
 
-    // Mutate the hash suffix to visually represent routing in browser and let GA feel URL state changes
-    const targetHash = activeTab === 'landing' ? '' : `#${activeTab}`;
-    if (typeof window !== 'undefined' && window.location.hash !== targetHash) {
-      const cleanUrl = window.location.pathname + targetHash;
-      window.history.replaceState(null, '', cleanUrl);
+      // Mutate the hash suffix to visually represent routing in browser and let GA feel URL state changes
+      const targetHash = activeTab === 'landing' ? '' : `#${activeTab}`;
+      if (typeof window !== 'undefined') {
+        // Safe check to verify we write cleanly back to '/' pathname on general tabs
+        if (window.location.hash !== targetHash || window.location.pathname !== '/') {
+          const cleanUrl = '/' + targetHash;
+          window.history.replaceState(null, '', cleanUrl);
+        }
+      }
     }
   }, [activeTab]);
 
@@ -258,20 +250,28 @@ export default function App() {
     };
   }, [activeTab]);
 
-  // Synchronize reverse hash change navigation (e.g. browser back/forward buttons)
+  // Synchronize navigation (e.g. browser back/forward buttons)
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleNavigationChange = () => {
       if (typeof window !== 'undefined') {
+        if (window.location.pathname === '/whatsapploading') {
+          setActiveTab('whatsapploading');
+          return;
+        }
         const hash = window.location.hash.substring(1) || 'landing';
-        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact'];
+        const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'whatsapploading'];
         if (validTabs.includes(hash)) {
           setActiveTab(hash);
         }
       }
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleNavigationChange);
+    window.addEventListener('popstate', handleNavigationChange);
+    return () => {
+      window.removeEventListener('hashchange', handleNavigationChange);
+      window.removeEventListener('popstate', handleNavigationChange);
+    };
   }, []);
 
   const handleChoosePackageFromHero = () => {
@@ -309,6 +309,18 @@ export default function App() {
       setShowSuccessModal(false);
     }, 8000);
   };
+
+  if (activeTab === 'whatsapploading') {
+    return (
+      <WhatsAppLoading 
+        onBackToApp={() => {
+          if (typeof window !== 'undefined') {
+            window.history.back();
+          }
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-dark-bg text-neutral-100 font-sans relative overflow-x-hidden selection:bg-neon-blue/30 selection:text-white" id="yjmweb-master-root">
@@ -1121,43 +1133,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Modern WhatsApp Redirecting Popup System */}
-        {whatsappPopup.isOpen && (
-          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-neutral-955/85 backdrop-blur-xl" id="whatsapp-connecting-popup">
-            <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-neon-blue/30 bg-neutral-950/90 max-w-sm w-full text-center space-y-6 shadow-[0_0_50px_rgba(0,198,255,0.15)] relative overflow-hidden">
-              {/* Pulsing visual ambient aura blobs */}
-              <div className="absolute -top-12 -right-12 w-28 h-28 bg-neon-blue/15 rounded-full blur-2xl animate-pulse" />
-              <div className="absolute -bottom-12 -left-12 w-28 h-28 bg-neon-purple/15 rounded-full blur-2xl animate-pulse" />
-              
-              {/* Futuristic Spinner with Glowing effects */}
-              <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border-2 border-neon-blue/20" />
-                <div className="absolute inset-0 rounded-full border-t-2 border-l-2 border-neon-blue animate-spin" style={{ animationDuration: '0.8s' }} />
-                <div className="absolute w-12 h-12 rounded-full border border-neon-purple/20" />
-                <div className="absolute w-12 h-12 rounded-full border-b-2 border-r-2 border-neon-purple animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
-                <MessageSquare className="w-5 h-5 text-neon-blue animate-pulse" />
-              </div>
-              
-              <div className="space-y-2">
-                <h3 className="text-sm font-display font-bold tracking-tight text-white uppercase bg-clip-text text-transparent bg-gradient-to-r from-neon-blue via-white to-neon-purple">
-                  Connecting to WhatsApp...
-                </h3>
-                <span className="inline-block px-2.5 py-0.5 bg-green-500/10 border border-green-500/20 text-green-400 font-mono text-[9px] uppercase tracking-wider rounded-full">
-                  Redirecting in {whatsappPopup.countdown}s
-                </span>
-                <p className="text-xs text-neutral-400 leading-relaxed pt-2">
-                  Our support team will reply as soon as possible. Please wait while we initialize your secure chat session.
-                </p>
-              </div>
 
-              {/* Minimal modern status line */}
-              <div className="pt-2 flex items-center justify-center gap-2 text-[10px] font-mono text-neutral-500">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span>SECURE ROUTE ESTABLISHED</span>
-              </div>
-            </div>
-          </div>
-        )}
 
       </main>
 
