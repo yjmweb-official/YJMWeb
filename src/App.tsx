@@ -447,7 +447,7 @@ export default function App() {
                 <div className="pt-16 max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4" id="hero-stats-bar">
                   <div className="p-4 bg-white/2.5 border border-white/5 rounded-xl text-center">
                     <span className="text-xs font-mono text-neutral-500 block">Responsive Design</span>
-                    <span className="text-sm font-semibold text-white mt-1 block">99+ Mobile Scores</span>
+                    <span className="text-sm font-semibold text-white mt-1 block">98+ Mobile Scores</span>
                   </div>
                   <div className="p-4 bg-white/2.5 border border-white/5 rounded-xl text-center">
                     <span className="text-xs font-mono text-neutral-500 block">Ongoing Updates</span>
