@@ -105,7 +105,7 @@ We attached these custom unified triggers to the components to guarantee both GA
 
 | Button Element | Trigger Location | GA4 Event Name | GTM `event` Payload |
 |---|---|---|---|
-| **Floating Green Badge** | `/src/App.tsx` | `floating_whatsapp_click` & `submit_order` | `floating_whatsapp_click` & `submit_order` (button_type: `floating`) |
+| **Floating Green Badge** | `/src/App.tsx` | `floating_whatsapp_click`, `submit_order`, `purchase_success` | Bypassed (Direct pure GA4 Tracking only) |
 | **Header Navbar Icon** | `/src/components/Navbar.tsx` (Desktop) | `navbar_whatsapp_click` | `navbar_whatsapp_click` (button_type: `navbar_support`) |
 | **Drawer Mobile Support** | `/src/components/Navbar.tsx` (Mobile Drawer) | `navbar_whatsapp_click` | `navbar_whatsapp_click` (button_type: `navbar_support`) |
 

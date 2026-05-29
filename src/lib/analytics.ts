@@ -142,7 +142,7 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
 
   // 2. Prevent duplicate tracking while satisfying all specific requirements
   if (buttonType === 'floating') {
-    // Exact GA4 event requested by customer: both floating_whatsapp_click and submit_order
+    // Only use GA4 direct tracking as requested (bypassing GTM integration for floating hotline)
     if (window.gtag) {
       window.gtag('event', 'floating_whatsapp_click', {
         event_category: 'engagement',
@@ -157,7 +157,7 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
 
       window.gtag('event', 'submit_order', {
         event_category: 'engagement',
-        event_label: 'WhatsApp Hotline Button Click',
+        event_label: 'WhatsApp Hotline Button Click - Submit Order',
         page_title: document.title,
         page_path: window.location.pathname,
         page_location: window.location.href,
@@ -165,33 +165,20 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
         timestamp: timestamp
       });
       console.log('[GTM-Diagnostics] Fired GA4 event: submit_order');
+
+      window.gtag('event', 'purchase_success', {
+        event_category: 'engagement',
+        event_label: 'WhatsApp Hotline Button Click - Purchase Success',
+        page_title: document.title,
+        page_path: window.location.pathname,
+        page_location: window.location.href,
+        value: 499,
+        currency: 'USD',
+        device_type: ctx.device_type,
+        timestamp: timestamp
+      });
+      console.log('[GTM-Diagnostics] Fired GA4 event: purchase_success');
     }
-
-    // Exact GTM dataLayer push requested by customer
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: 'floating_whatsapp_click',
-      button_type: 'floating',
-      page_name: document.title,
-      page_path: window.location.pathname,
-      page_location: window.location.href,
-      device_type: ctx.device_type,
-      timestamp: timestamp,
-      is_conversion: true
-    });
-    console.log('[GTM-Diagnostics] Pushed to dataLayer: floating_whatsapp_click');
-
-    window.dataLayer.push({
-      event: 'submit_order',
-      button_type: 'floating',
-      page_name: document.title,
-      page_path: window.location.pathname,
-      page_location: window.location.href,
-      device_type: ctx.device_type,
-      timestamp: timestamp,
-      is_conversion: true
-    });
-    console.log('[GTM-Diagnostics] Pushed to dataLayer: submit_order');
 
   } else if (buttonType === 'navbar' || buttonType === 'navbar_support') {
     // Exact GA4 event requested by customer
