@@ -73,17 +73,22 @@ export default function Navbar({ activeTab, setActiveTab, onNavigateToCheckout }
 
           {/* Direct WhatsApp Callout */}
           <div className="hidden lg:flex items-center gap-4">
-            <a 
-              href="https://wa.me/94776826937" 
-              target="_blank" 
-              rel="noreferrer"
-              onClick={() => trackWhatsAppClick('navbar_support')}
-              className="text-neutral-400 hover:text-green-400 transition-all flex items-center justify-center p-2 rounded-full bg-white/5 border border-white/5 hover:border-green-400/20 shadow-sm"
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+                  (window as any).triggerWhatsAppPopup('navbar_support', 'https://wa.me/94776826937');
+                } else {
+                  trackWhatsAppClick('navbar_support');
+                  window.open('https://wa.me/94776826937', '_blank');
+                }
+              }}
+              className="text-neutral-400 hover:text-green-400 transition-all flex items-center justify-center p-2 rounded-full bg-white/5 border border-white/5 hover:border-green-400/20 shadow-sm cursor-pointer"
               id="navbar-wa-text-link"
               title="Chat on WhatsApp"
             >
               <MessageSquare className="w-4 h-4 text-green-400" />
-            </a>
+            </button>
 
             <button
               onClick={onNavigateToCheckout}
@@ -142,16 +147,21 @@ export default function Navbar({ activeTab, setActiveTab, onNavigateToCheckout }
           </div>
           
           <div className="pt-4 mt-4 border-t border-white/5 space-y-3">
-            <a 
-              href="https://wa.me/94776826937" 
-              target="_blank" 
-              rel="noreferrer"
-              onClick={() => trackWhatsAppClick('navbar_support')}
-              className="flex items-center gap-2 p-3 bg-neutral-900 rounded-lg text-xs font-mono text-neutral-300 hover:text-white"
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+                  (window as any).triggerWhatsAppPopup('navbar_support', 'https://wa.me/94776826937');
+                } else {
+                  trackWhatsAppClick('navbar_support');
+                  window.open('https://wa.me/94776826937', '_blank');
+                }
+              }}
+              className="w-full flex items-center gap-2 p-3 bg-neutral-900 rounded-lg text-xs font-mono text-neutral-300 hover:text-white transition-all cursor-pointer text-left"
             >
               <MessageSquare className="w-4 h-4 text-green-400" />
               WhatsApp Support: +94776826937
-            </a>
+            </button>
 
             <button
               onClick={onNavigateToCheckout}

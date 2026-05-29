@@ -51,6 +51,63 @@ export default function App() {
   const [activeTestimonial, setActiveTestimonial] = useState<number>(0);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
+  // Global WhatsApp Redirect Popup engine
+  const [whatsappPopup, setWhatsappPopup] = useState<{
+    isOpen: boolean;
+    buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq';
+    whatsappUrl: string;
+    countdown: number;
+  }>({ isOpen: false, buttonType: 'support', whatsappUrl: '', countdown: 3 });
+
+  // Expose global trigger for WhatsApp redirects with custom popup + direct analytics tracking
+  useEffect(() => {
+    (window as any).triggerWhatsAppPopup = (
+      buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq',
+      url: string = 'https://wa.me/94776826937'
+    ) => {
+      // 1. Instantly capture tracking details and dispatch GA4 event first
+      trackWhatsAppClick(buttonType);
+
+      // 2. Open our modern neon popup immediately
+      setWhatsappPopup({
+        isOpen: true,
+        buttonType,
+        whatsappUrl: url,
+        countdown: 3
+      });
+    };
+
+    return () => {
+      delete (window as any).triggerWhatsAppPopup;
+    };
+  }, []);
+
+  useEffect(() => {
+    let interval: any;
+    let redirectTimer: any;
+
+    if (whatsappPopup.isOpen) {
+      // Countdown tick every second
+      interval = setInterval(() => {
+        setWhatsappPopup(prev => ({
+          ...prev,
+          countdown: Math.max(0, prev.countdown - 1)
+        }));
+      }, 1000);
+
+      // Redirect after 2.5 seconds
+      redirectTimer = setTimeout(() => {
+        window.open(whatsappPopup.whatsappUrl, '_blank');
+        setWhatsappPopup(prev => ({ ...prev, isOpen: false }));
+      }, 2500);
+    }
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(redirectTimer);
+    };
+  }, [whatsappPopup.isOpen, whatsappPopup.whatsappUrl]);
+
   // Synchronize dynamic URL update and send manual page views to Google Analytics
   useEffect(() => {
     if (activeTab === 'contact') {
@@ -266,12 +323,17 @@ export default function App() {
 
       {/* Floating active assistant sidebar widget on Right corner */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3.5" id="floating-whatsapp-assistant">
-        <a 
-          href="https://wa.me/94776826937" 
-          target="_blank" 
-          rel="noreferrer"
-          onClick={() => trackWhatsAppClick('floating')}
-          className="w-14 h-14 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-neutral-950 shadow-2xl hover:shadow-green-500/25 transition-all outline-none hover:scale-110 active:scale-95 group relative border border-green-400/20"
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+              (window as any).triggerWhatsAppPopup('floating', 'https://wa.me/94776826937');
+            } else {
+              trackWhatsAppClick('floating');
+              window.open('https://wa.me/94776826937', '_blank');
+            }
+          }}
+          className="w-14 h-14 bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-neutral-950 shadow-2xl hover:shadow-green-500/25 transition-all outline-none hover:scale-110 active:scale-95 group relative border border-green-400/20 cursor-pointer"
           id="btn-whatsapp-floating-trigger"
           title="Connect on WhatsApp"
         >
@@ -283,7 +345,7 @@ export default function App() {
           <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-neutral-950 text-white font-mono text-[10px] font-medium rounded-md border border-white/10 uppercase tracking-widest pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             WhatsApp Hotline
           </span>
-        </a>
+        </button>
       </div>
 
       {/* Sticky Header Navbar */}
@@ -351,17 +413,22 @@ export default function App() {
                     View Packages
                   </button>
 
-                  <a
-                    href="https://wa.me/94776826937"
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() => trackWhatsAppClick('hero')}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+                        (window as any).triggerWhatsAppPopup('hero', 'https://wa.me/94776826937');
+                      } else {
+                        trackWhatsAppClick('hero');
+                        window.open('https://wa.me/94776826937', '_blank');
+                      }
+                    }}
                     id="hero-cta-btn-whatsapp"
-                    className="w-full sm:w-auto px-8 py-4 bg-[#128c7e]/15 hover:bg-[#128c7e]/25 border border-[#128c7e]/40 hover:border-[#128c7e]/60 text-green-400 font-display font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all"
+                    className="w-full sm:w-auto px-8 py-4 bg-[#128c7e]/15 hover:bg-[#128c7e]/25 border border-[#128c7e]/40 hover:border-[#128c7e]/60 text-green-400 font-display font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                   >
                     <MessageSquare className="w-4 h-4 fill-green-400/20" />
                     Contact on WhatsApp
-                  </a>
+                  </button>
                 </div>
 
                 {/* Bento features horizontal previews */}
@@ -1049,6 +1116,44 @@ export default function App() {
                 >
                   Dismiss Workspace Status
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modern WhatsApp Redirecting Popup System */}
+        {whatsappPopup.isOpen && (
+          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-neutral-955/85 backdrop-blur-xl" id="whatsapp-connecting-popup">
+            <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-neon-blue/30 bg-neutral-950/90 max-w-sm w-full text-center space-y-6 shadow-[0_0_50px_rgba(0,198,255,0.15)] relative overflow-hidden">
+              {/* Pulsing visual ambient aura blobs */}
+              <div className="absolute -top-12 -right-12 w-28 h-28 bg-neon-blue/15 rounded-full blur-2xl animate-pulse" />
+              <div className="absolute -bottom-12 -left-12 w-28 h-28 bg-neon-purple/15 rounded-full blur-2xl animate-pulse" />
+              
+              {/* Futuristic Spinner with Glowing effects */}
+              <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-2 border-neon-blue/20" />
+                <div className="absolute inset-0 rounded-full border-t-2 border-l-2 border-neon-blue animate-spin" style={{ animationDuration: '0.8s' }} />
+                <div className="absolute w-12 h-12 rounded-full border border-neon-purple/20" />
+                <div className="absolute w-12 h-12 rounded-full border-b-2 border-r-2 border-neon-purple animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+                <MessageSquare className="w-5 h-5 text-neon-blue animate-pulse" />
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-sm font-display font-bold tracking-tight text-white uppercase bg-clip-text text-transparent bg-gradient-to-r from-neon-blue via-white to-neon-purple">
+                  Connecting to WhatsApp...
+                </h3>
+                <span className="inline-block px-2.5 py-0.5 bg-green-500/10 border border-green-500/20 text-green-400 font-mono text-[9px] uppercase tracking-wider rounded-full">
+                  Redirecting in {whatsappPopup.countdown}s
+                </span>
+                <p className="text-xs text-neutral-400 leading-relaxed pt-2">
+                  Our support team will reply as soon as possible. Please wait while we initialize your secure chat session.
+                </p>
+              </div>
+
+              {/* Minimal modern status line */}
+              <div className="pt-2 flex items-center justify-center gap-2 text-[10px] font-mono text-neutral-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span>SECURE ROUTE ESTABLISHED</span>
               </div>
             </div>
           </div>

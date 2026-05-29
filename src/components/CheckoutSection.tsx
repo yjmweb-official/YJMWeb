@@ -240,11 +240,15 @@ _Please draft our mock layout review based on the details above!_`;
     const encoded = encodeURIComponent(msg);
     const targetUrl = `https://wa.me/94776826937?text=${encoded}`;
     
-    // Open in new window safely
-    window.open(targetUrl, '_blank');
+    // Open through our modern global connection popup if available, otherwise fallback
+    if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+      (window as any).triggerWhatsAppPopup('checkout', targetUrl);
+    } else {
+      window.open(targetUrl, '_blank');
+      trackWhatsAppClick('checkout');
+    }
     
     // Track checkout submissions and funnel completions
-    trackWhatsAppClick('checkout');
     trackFormSubmit('checkout_form', {
       brand_name: customer.restaurantName,
       package_name: selectedPackage.name,

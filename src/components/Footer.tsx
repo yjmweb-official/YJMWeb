@@ -90,16 +90,21 @@ export default function Footer({ onNavigateTab }: FooterProps) {
                 yjmweb@gmail.com
               </a>
 
-              <a 
-                href="https://wa.me/94776826937" 
-                target="_blank" 
-                rel="noreferrer" 
-                onClick={() => trackWhatsAppClick('footer')}
-                className="flex items-center gap-2 hover:text-white transition-all text-neutral-300"
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+                    (window as any).triggerWhatsAppPopup('footer', 'https://wa.me/94776826937');
+                  } else {
+                    trackWhatsAppClick('footer');
+                    window.open('https://wa.me/94776826937', '_blank');
+                  }
+                }}
+                className="flex items-center gap-2 hover:text-white transition-all text-neutral-300 cursor-pointer text-left"
               >
                 <MessageSquare className="w-4 h-4 text-green-400" />
                 +94 77 682 6937
-              </a>
+              </button>
             </div>
           </div>
 

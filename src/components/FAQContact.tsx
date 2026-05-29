@@ -51,10 +51,16 @@ export default function FAQContact() {
 📝 Query: ${formData.query}`;
 
     const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/94776826937?text=${encoded}`, '_blank');
+    const targetUrl = `https://wa.me/94776826937?text=${encoded}`;
+
+    if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+      (window as any).triggerWhatsAppPopup('support', targetUrl);
+    } else {
+      window.open(targetUrl, '_blank');
+      trackWhatsAppClick('support');
+    }
     
     // Send event logging to GA4 and GTM
-    trackWhatsAppClick('support');
     trackFormSubmit('contact_form', {
       name: formData.name,
       email: formData.email
@@ -212,12 +218,17 @@ export default function FAQContact() {
               </div>
             </a>
 
-            <a 
-              href="https://wa.me/94776826937" 
-              target="_blank" 
-              rel="noreferrer"
-              onClick={() => trackWhatsAppClick('support')}
-              className="flex items-start gap-3.5 p-3.5 bg-neutral-900/40 hover:bg-white/2.5 border border-white/2.5 rounded-xl transition-all"
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+                  (window as any).triggerWhatsAppPopup('support', 'https://wa.me/94776826937');
+                } else {
+                  trackWhatsAppClick('support');
+                  window.open('https://wa.me/94776826937', '_blank');
+                }
+              }}
+              className="w-full flex items-start text-left gap-3.5 p-3.5 bg-neutral-900/40 hover:bg-white/2.5 border border-white/2.5 rounded-xl transition-all cursor-pointer"
               id="info-card-phone"
             >
               <div className="p-2 bg-green-500/10 rounded-lg border border-green-500/20">
@@ -227,7 +238,7 @@ export default function FAQContact() {
                 <span className="text-4xs font-mono uppercase text-neutral-500 block">Direct WhatsApp Hotlines:</span>
                 <span className="text-xs text-green-400 font-medium font-mono">+94 77 682 6937</span>
               </div>
-            </a>
+            </button>
 
             <div className="flex items-start gap-3.5 p-3.5 bg-neutral-900/40 border border-white/2.5 rounded-xl" id="info-location">
               <div className="p-2 bg-neutral-900 rounded-lg border border-white/5">

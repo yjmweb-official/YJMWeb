@@ -41,10 +41,15 @@ export default function LogoConcepts() {
     const encoded = encodeURIComponent(msg);
     const targetUrl = `https://wa.me/94776826937?text=${encoded}`;
     
-    window.open(targetUrl, '_blank');
+    // Open through our modern global connection popup if available, otherwise fallback
+    if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+      (window as any).triggerWhatsAppPopup('support', targetUrl);
+    } else {
+      window.open(targetUrl, '_blank');
+      trackWhatsAppClick('support');
+    }
 
     // Track branding lab logo order in GA4 & GTM
-    trackWhatsAppClick('support');
     trackFormSubmit('branding_lab_order', {
       brand_name: logoBrandName,
       aesthetic: logoAesthetic,
