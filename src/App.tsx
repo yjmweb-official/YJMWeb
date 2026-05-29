@@ -35,6 +35,31 @@ import {
   trackCtaClick
 } from './lib/analytics';
 
+function PhilosophyFeatureCard({ title, description, dotClass }: { title: string; description: string; dotClass: string }) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  return (
+    <div 
+      className="p-5 bg-black/60 rounded-xl border border-white/5 flex flex-col justify-start transition-all cursor-pointer md:cursor-default"
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <h4 className="text-sm font-semibold text-white flex items-center justify-between gap-2 select-none">
+        <span className="flex items-center gap-2">
+          <span className={`w-2.5 h-2.5 rounded-full ${dotClass} inline-block`} />
+          {title}
+        </span>
+        <span className={`text-neutral-500 text-2xs transition-transform duration-300 md:hidden ${isOpen ? 'rotate-180 text-white' : ''}`}>
+          ▼
+        </span>
+      </h4>
+      <div className={`transition-all duration-300 overflow-hidden md:block ${isOpen ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0 md:max-h-40 md:opacity-100'}`}>
+        <p className="text-neutral-400 text-xs leading-relaxed mt-1">
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   // Read hash on initialize to support deep linking and accurate initial GA reports
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -50,6 +75,8 @@ export default function App() {
   const [selectedPackageId, setSelectedPackageId] = useState<string>('business');
   const [activeTestimonial, setActiveTestimonial] = useState<number>(0);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+  const [sectionDescOpen, setSectionDescOpen] = useState<boolean>(false);
+  const [checkoutIntroOpen, setCheckoutIntroOpen] = useState<boolean>(false);
 
   // Expose global trigger for WhatsApp redirects with direct analytics tracking
   useEffect(() => {
@@ -375,23 +402,6 @@ export default function App() {
                   >
                     View Packages
                   </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
-                        (window as any).triggerWhatsAppPopup('hero', 'https://wa.me/94776826937');
-                      } else {
-                        trackWhatsAppClick('hero');
-                        window.open('https://wa.me/94776826937', '_blank');
-                      }
-                    }}
-                    id="hero-cta-btn-whatsapp"
-                    className="w-full sm:w-auto px-8 py-4 bg-[#128c7e]/15 hover:bg-[#128c7e]/25 border border-[#128c7e]/40 hover:border-[#128c7e]/60 text-green-400 font-display font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer"
-                  >
-                    <MessageSquare className="w-4 h-4 fill-green-400/20" />
-                    Contact on WhatsApp
-                  </button>
                 </div>
 
                 {/* Bento features horizontal previews */}
@@ -504,14 +514,24 @@ export default function App() {
                 <div className="absolute top-0 right-0 w-96 h-96 bg-neon-blue/5 rounded-full blur-[100px] pointer-events-none" />
                 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-                  <div className="lg:col-span-5 space-y-5">
-                    <span className="text-4xs font-mono uppercase tracking-widest text-neon-blue">Design Philosophy</span>
-                    <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white leading-tight">
-                      Why Growing Businesses Choose YJMWeb
-                    </h2>
-                    <p className="text-neutral-450 text-xs sm:text-sm leading-relaxed">
-                      Business operators are specialists in growth and delivering client value—not code, domain mapping, or mobile diagnostic tools. We bridge the gap completely.
-                    </p>
+                  <div className="lg:col-span-5 flex flex-col gap-4">
+                    <div 
+                      className="cursor-pointer md:cursor-default" 
+                      onClick={() => setSectionDescOpen(!sectionDescOpen)}
+                    >
+                      <span className="text-4xs font-mono uppercase tracking-widest text-neon-blue block">Design Philosophy</span>
+                      <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white leading-tight flex items-center justify-between gap-2 mt-1 select-none">
+                        <span>Why Growing Businesses Choose YJMWeb</span>
+                        <span className={`text-neutral-500 text-xs transition-transform duration-300 md:hidden ${sectionDescOpen ? 'rotate-180 text-white' : ''}`}>
+                          ▼
+                        </span>
+                      </h2>
+                    </div>
+                    <div className={`transition-all duration-300 overflow-hidden md:block ${sectionDescOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 md:max-h-40 md:opacity-100'}`}>
+                      <p className="text-neutral-445 text-xs sm:text-sm leading-relaxed">
+                        Business operators are specialists in growth and delivering client value—not code, domain mapping, or mobile diagnostic tools. We bridge the gap completely.
+                      </p>
+                    </div>
 
                     <div className="pt-2">
                       <button
@@ -524,45 +544,29 @@ export default function App() {
                   </div>
 
                   <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="p-5 bg-black/60 rounded-xl border border-white/5 space-y-2">
-                      <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-neon-blue inline-block" />
-                        Direct Client Channels
-                      </h4>
-                      <p className="text-neutral-400 text-xs leading-relaxed">
-                        Skip paying up to 30% to middleman directories or scheduling aggregators. Capture bookings directly on your custom, SSL-secured dot-com layout.
-                      </p>
-                    </div>
+                    <PhilosophyFeatureCard 
+                      title="Direct Client Channels"
+                      description="Skip paying up to 30% to middleman directories or scheduling aggregators. Capture bookings directly on your custom, SSL-secured dot-com layout."
+                      dotClass="bg-neon-blue"
+                    />
 
-                    <div className="p-5 bg-black/60 rounded-xl border border-white/5 space-y-2">
-                      <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-neon-purple inline-block" />
-                        Lightning Speed Loads
-                      </h4>
-                      <p className="text-neutral-400 text-xs leading-relaxed">
-                        Optimized WebP visuals and high-performance CDN support mean your product listings or service portfolios load instantly for visitors.
-                      </p>
-                    </div>
+                    <PhilosophyFeatureCard 
+                      title="Lightning Speed Loads"
+                      description="Optimized WebP visuals and high-performance CDN support mean your product listings or service portfolios load instantly for visitors."
+                      dotClass="bg-neon-purple"
+                    />
 
-                    <div className="p-5 bg-black/60 rounded-xl border border-white/5 space-y-2">
-                      <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-neon-pink inline-block" />
-                        Zero Site Editor Pain
-                      </h4>
-                      <p className="text-neutral-400 text-xs leading-relaxed">
-                        Never spend late nights configuring layouts or correcting mobile alignment errors. Just chat/email us changes, and we execute them immediately.
-                      </p>
-                    </div>
+                    <PhilosophyFeatureCard 
+                      title="Zero Site Editor Pain"
+                      description="Never spend late nights configuring layouts or correcting mobile alignment errors. Just chat/email us changes, and we execute them immediately."
+                      dotClass="bg-neon-pink"
+                    />
 
-                    <div className="p-5 bg-black/60 rounded-xl border border-white/5 space-y-2">
-                      <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-green-400 inline-block" />
-                        Seamless Local Ranking
-                      </h4>
-                      <p className="text-neutral-400 text-xs leading-relaxed">
-                        We map out metadata headers, Schema structures, and verify map listings so prospective clients locate your business near them.
-                      </p>
-                    </div>
+                    <PhilosophyFeatureCard 
+                      title="Seamless Local Ranking"
+                      description="We map out metadata headers, Schema structures, and verify map listings so prospective clients locate your business near them."
+                      dotClass="bg-green-400"
+                    />
                   </div>
                 </div>
               </section>
@@ -1024,12 +1028,24 @@ export default function App() {
               className="space-y-12"
               id="checkout-tab-view"
             >
-              <div className="text-center max-w-2xl mx-auto space-y-3">
-                <span className="text-4xs font-mono uppercase tracking-widest text-neon-pink">Interactive Builder</span>
-                <h1 className="text-3xl sm:text-4xl font-display font-medium text-white">Customize Your Solution Blueprint</h1>
-                <p className="text-neutral-400 text-xs sm:text-sm">
-                  Toggle desired design modules, calculate immediate setup rates and rolling maintenance durations down to the cent, fill contact scopes and submit to lock launch priority.
-                </p>
+              <div className="text-center max-w-2xl mx-auto">
+                <div 
+                  className="cursor-pointer md:cursor-default"
+                  onClick={() => setCheckoutIntroOpen(!checkoutIntroOpen)}
+                >
+                  <span className="text-4xs font-mono uppercase tracking-widest text-neon-pink block">Interactive Builder</span>
+                  <h1 className="text-3xl sm:text-4xl font-display font-medium text-white flex items-center justify-center gap-2 mt-1 select-none">
+                    <span>Customize Your Solution Blueprint</span>
+                    <span className={`text-neutral-500 text-xs transition-transform duration-300 md:hidden ${checkoutIntroOpen ? 'rotate-180 text-white' : ''}`}>
+                      ▼
+                    </span>
+                  </h1>
+                </div>
+                <div className={`transition-all duration-300 overflow-hidden md:block ${checkoutIntroOpen ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0 md:max-h-40 md:opacity-100'}`}>
+                  <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
+                    Toggle desired design modules, calculate immediate setup rates and rolling maintenance durations down to the cent, fill contact scopes and submit to lock launch priority.
+                  </p>
+                </div>
               </div>
 
               {/* Full Checkout Component */}

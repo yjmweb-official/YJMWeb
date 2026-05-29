@@ -78,6 +78,10 @@ export default function CheckoutSection({ initialPackageId = 'business', onOrder
   const [formErrors, setFormErrors] = useState<Partial<CustomerInfo>>({});
   const [sumTotal, setSumTotal] = useState<{ setup: number; monthly: number; total: number }>({ setup: 0, monthly: 0, total: 0 });
 
+  const [expandedPkgIds, setExpandedPkgIds] = useState<Record<string, boolean>>({});
+  const [expandedPlanIds, setExpandedPlanIds] = useState<Record<string, boolean>>({});
+  const [expandedAddonIds, setExpandedAddonIds] = useState<Record<string, boolean>>({});
+
   // Update selected package if parent changes it
   useEffect(() => {
     const pkg = PACKAGES.find(p => p.id === initialPackageId);
@@ -487,16 +491,37 @@ _Please draft our mock layout review based on the details above!_`;
                     }`}
                   >
                     {isSelected && (
-                      <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-neon-blue flex items-center justify-center">
+                      <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-neon-blue flex items-center justify-center z-10">
                         <Check className="w-3.5 h-3.5 text-black stroke-[3]" />
                       </span>
                     )}
-                    <div>
-                      <span className="text-3xs uppercase font-mono tracking-widest text-neutral-500 block mb-1">{pkg.badge}</span>
-                      <h4 className="font-display font-medium text-sm text-white">{pkg.name}</h4>
+                    <div className="w-full">
+                      <div 
+                        className="flex items-center justify-between gap-1 cursor-pointer select-none"
+                        onClick={(e) => {
+                          if (window.innerWidth < 768) {
+                            e.stopPropagation();
+                            setExpandedPkgIds(prev => ({ ...prev, [pkg.id]: !prev[pkg.id] }));
+                          }
+                        }}
+                      >
+                        <div>
+                          <span className="text-3xs uppercase font-mono tracking-widest text-neutral-500 block mb-1">{pkg.badge}</span>
+                          <h4 className="font-display font-medium text-sm text-white">{pkg.name}</h4>
+                        </div>
+                        <span className="text-neutral-500 text-[10px] transition-transform duration-300 md:hidden ml-auto">
+                          {expandedPkgIds[pkg.id] ? '▲' : '▼'}
+                        </span>
+                      </div>
+                      
+                      <div className={`transition-all duration-300 overflow-hidden md:block ${expandedPkgIds[pkg.id] ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0 md:max-h-32 md:opacity-100'}`}>
+                        <p className="text-[11px] text-neutral-400 leading-relaxed mt-1">
+                          {pkg.description}
+                        </p>
+                      </div>
                     </div>
                     
-                    <div className="mt-4 pt-4 border-t border-white/5">
+                    <div className="mt-4 pt-4 border-t border-white/5 w-full">
                       <div className="text-xs text-neutral-400">Setup Fee:</div>
                       <div className="text-lg font-mono font-semibold text-white animate-pulse-once">${pkg.priceSetup}</div>
                       <div className="text-xs text-neutral-400 mt-1">Management Rate:</div>
@@ -531,28 +556,53 @@ _Please draft our mock layout review based on the details above!_`;
                     }`}
                   >
                     <div className="flex items-start justify-between w-full">
-                      <div>
-                        <span className={`text-4xs font-mono tracking-widest uppercase px-2 py-0.5 rounded-full inline-block mb-2 ${
-                          plan.id === 'quarterly' ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/30' : 'bg-white/5 text-neutral-400'
-                        }`}>
-                          {plan.badge}
-                        </span>
-                        <h4 className="font-display font-medium text-base text-white">{plan.name}</h4>
+                      <div className="flex-1">
+                        <div 
+                          className="flex items-center gap-1.5 cursor-pointer select-none"
+                          onClick={(e) => {
+                            if (window.innerWidth < 768) {
+                              e.stopPropagation();
+                              setExpandedPlanIds(prev => ({ ...prev, [plan.id]: !prev[plan.id] }));
+                            }
+                          }}
+                        >
+                          <span className={`text-4xs font-mono tracking-widest uppercase px-2 py-0.5 rounded-full inline-block ${
+                            plan.id === 'quarterly' ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/30 font-semibold' : 'bg-white/5 text-neutral-400'
+                          }`}>
+                            {plan.badge}
+                          </span>
+                          <span className="text-neutral-500 text-[10px] transition-transform duration-300 md:hidden ml-auto">
+                            {expandedPlanIds[plan.id] ? '▲' : '▼'}
+                          </span>
+                        </div>
+                        <h4 
+                          className="font-display font-medium text-base text-white mt-1 cursor-pointer flex items-center justify-between gap-2 select-none"
+                          onClick={(e) => {
+                            if (window.innerWidth < 768) {
+                              e.stopPropagation();
+                              setExpandedPlanIds(prev => ({ ...prev, [plan.id]: !prev[plan.id] }));
+                            }
+                          }}
+                        >
+                          <span>{plan.name}</span>
+                        </h4>
                       </div>
                       {isSelected && (
-                        <div className="w-5 h-5 rounded-full bg-neon-purple flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-neon-purple flex items-center justify-center shrink-0 ml-2">
                           <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
                         </div>
                       )}
                     </div>
 
-                    <p className="text-xs text-neutral-400 mt-2.5 flex-1 leading-relaxed">
-                      {plan.id === 'quarterly' 
-                        ? 'Reduces rolling monthly management fees by 15% and guarantees continuous search ranking, caching speed-ups, and prioritizes content sweeps.' 
-                        : 'Cancel rolling structural maintenance checks at any point. Ideal for testing initial customer reactions.'}
-                    </p>
+                    <div className={`transition-all duration-300 overflow-hidden md:block text-left w-full ${expandedPlanIds[plan.id] ? 'max-h-40 opacity-100 mt-2.5' : 'max-h-0 opacity-0 md:max-h-32 md:opacity-100'}`}>
+                      <p className="text-xs text-neutral-400 mt-2.5 flex-1 leading-relaxed">
+                        {plan.id === 'quarterly' 
+                          ? 'Reduces rolling monthly management fees by 15% and guarantees continuous search ranking, caching speed-ups, and prioritizes content sweeps.' 
+                          : 'Cancel rolling structural maintenance checks at any point. Ideal for testing initial customer reactions.'}
+                      </p>
+                    </div>
 
-                    <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between">
+                    <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between w-full">
                       <span className="text-xs text-neutral-400">Term Pricing:</span>
                       <span className="text-sm font-mono text-neon-purple font-semibold">{plan.pricingText}</span>
                     </div>
@@ -587,8 +637,8 @@ _Please draft our mock layout review based on the details above!_`;
                         : 'bg-neutral-950/40 border-white/5 hover:border-white/10 hover:bg-neutral-900/20'
                     }`}
                   >
-                    <div className="flex items-start gap-3.5 flex-1">
-                      <div className="pt-0.5">
+                    <div className="flex items-start gap-3.5 flex-1 w-full">
+                      <div className="pt-0.5 shrink-0">
                         <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
                           isChecked 
                             ? 'bg-neon-pink border-neon-pink text-white' 
@@ -597,48 +647,64 @@ _Please draft our mock layout review based on the details above!_`;
                           {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                         </div>
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="text-sm font-medium text-white">{addon.name}</h4>
-                          <span className="text-3xs font-mono uppercase bg-white/5 text-neutral-400 px-1.5 py-0.5 rounded">
-                            {addon.category}
+                      <div className="flex-1 w-full text-left">
+                        <div 
+                          className="flex items-center justify-between gap-2 flex-wrap cursor-pointer select-none"
+                          onClick={(e) => {
+                            if (window.innerWidth < 768) {
+                              e.stopPropagation();
+                              setExpandedAddonIds(prev => ({ ...prev, [addon.id]: !prev[addon.id] }));
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2 flex-wrap text-left">
+                            <h4 className="text-sm font-medium text-white">{addon.name}</h4>
+                            <span className="text-3xs font-mono uppercase bg-white/5 text-neutral-400 px-1.5 py-0.5 rounded">
+                              {addon.category}
+                            </span>
+                          </div>
+                          <span className="text-neutral-500 text-[10px] transition-transform duration-300 md:hidden ml-auto">
+                            {expandedAddonIds[addon.id] ? '▲' : '▼'}
                           </span>
                         </div>
-                        <p className="text-xs text-neutral-400 mt-1 leading-relaxed max-w-xl">
-                          {addon.description}
-                        </p>
+                        
+                        <div className={`transition-all duration-300 overflow-hidden md:block ${expandedAddonIds[addon.id] ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0 md:max-h-32 md:opacity-100'}`}>
+                          <p className="text-xs text-neutral-400 mt-1 leading-relaxed max-w-xl">
+                            {addon.description}
+                          </p>
 
-                        {/* Special Quantity Selector logic for Additional Pages */}
-                        {addon.id === 'extra_pages' && isChecked && (
-                          <div 
-                            className="mt-3.5 flex items-center gap-3 bg-neutral-950/80 p-1.5 rounded-lg border border-white/5 w-fit" 
-                            onClick={(e) => e.stopPropagation()} // stop toggle active trigger
-                          >
-                            <span className="text-2xs font-mono text-neutral-400 px-1.5">Count:</span>
-                            <button
-                              type="button"
-                              onClick={() => setExtraPagesCount(c => Math.max(1, c - 1))}
-                              id="btn-extra-pages-dec"
-                              className="w-6 h-6 rounded bg-neutral-900 hover:bg-white/10 flex items-center justify-center border border-white/10 text-white transition-all"
+                          {/* Special Quantity Selector logic for Additional Pages */}
+                          {addon.id === 'extra_pages' && isChecked && (
+                            <div 
+                              className="mt-3.5 flex items-center gap-3 bg-neutral-950/80 p-1.5 rounded-lg border border-white/5 w-fit" 
+                              onClick={(e) => e.stopPropagation()} // stop toggle active trigger
                             >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="text-xs font-mono font-medium text-white w-5 text-center">{extraPagesCount}</span>
-                            <button
-                              type="button"
-                              onClick={() => setExtraPagesCount(c => Math.min(10, c + 1))}
-                              id="btn-extra-pages-inc"
-                              className="w-6 h-6 rounded bg-neutral-900 hover:bg-white/10 flex items-center justify-center border border-white/10 text-white transition-all"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
-                            <span className="text-2xs text-neutral-500 font-mono italic pr-1">($15 ea)</span>
-                          </div>
-                        )}
+                              <span className="text-2xs font-mono text-neutral-400 px-1.5">Count:</span>
+                              <button
+                                type="button"
+                                onClick={() => setExtraPagesCount(c => Math.max(1, c - 1))}
+                                id="btn-extra-pages-dec"
+                                className="w-6 h-6 rounded bg-neutral-900 hover:bg-white/10 flex items-center justify-center border border-white/10 text-white transition-all"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="text-xs font-mono font-medium text-white w-5 text-center">{extraPagesCount}</span>
+                              <button
+                                type="button"
+                                onClick={() => setExtraPagesCount(c => Math.min(10, c + 1))}
+                                id="btn-extra-pages-inc"
+                                className="w-6 h-6 rounded bg-neutral-900 hover:bg-white/10 flex items-center justify-center border border-white/10 text-white transition-all"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                              <span className="text-2xs text-neutral-500 font-mono italic pr-1">($15 ea)</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center border-t md:border-t-0 border-white/5 pt-3 md:pt-0">
+                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center border-t md:border-t-0 border-white/5 pt-3 md:pt-0 shrink-0">
                       <span className="text-xs text-neutral-500 md:hidden block">Fee:</span>
                       <span className="font-mono text-sm text-neon-pink font-semibold">
                         {addon.id === 'extra_pages' && isChecked 
@@ -792,10 +858,7 @@ _Please draft our mock layout review based on the details above!_`;
               Secure Forwarding System • No Cards Required
             </div>
 
-            {/* Instructions box */}
-            <div className="mt-4 p-3 bg-white/2.5 rounded-lg border border-white/2.5 text-[11px] text-neutral-400 leading-relaxed">
-              <strong>Order Flow:</strong> Tap the dispatch button to compile your system selection into a beautifully formatted proposal which we will instantly review on WhatsApp to configure your launch schedule.
-            </div>
+            {/* Removed Instructions box */}
 
           </div>
         </div>
