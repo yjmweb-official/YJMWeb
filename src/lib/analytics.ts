@@ -142,7 +142,7 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
 
   // 2. Prevent duplicate tracking while satisfying all specific requirements
   if (buttonType === 'floating') {
-    // Exact GA4 event requested by customer
+    // Exact GA4 event requested by customer: both floating_whatsapp_click and submit_order
     if (window.gtag) {
       window.gtag('event', 'floating_whatsapp_click', {
         event_category: 'engagement',
@@ -154,6 +154,17 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
         timestamp: timestamp
       });
       console.log('[GTM-Diagnostics] Fired GA4 event: floating_whatsapp_click');
+
+      window.gtag('event', 'submit_order', {
+        event_category: 'engagement',
+        event_label: 'WhatsApp Hotline Button Click',
+        page_title: document.title,
+        page_path: window.location.pathname,
+        page_location: window.location.href,
+        device_type: ctx.device_type,
+        timestamp: timestamp
+      });
+      console.log('[GTM-Diagnostics] Fired GA4 event: submit_order');
     }
 
     // Exact GTM dataLayer push requested by customer
@@ -169,6 +180,18 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
       is_conversion: true
     });
     console.log('[GTM-Diagnostics] Pushed to dataLayer: floating_whatsapp_click');
+
+    window.dataLayer.push({
+      event: 'submit_order',
+      button_type: 'floating',
+      page_name: document.title,
+      page_path: window.location.pathname,
+      page_location: window.location.href,
+      device_type: ctx.device_type,
+      timestamp: timestamp,
+      is_conversion: true
+    });
+    console.log('[GTM-Diagnostics] Pushed to dataLayer: submit_order');
 
   } else if (buttonType === 'navbar' || buttonType === 'navbar_support') {
     // Exact GA4 event requested by customer
