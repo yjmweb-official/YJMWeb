@@ -1,4 +1,4 @@
-// Google Analytics 4 (GA4) & Google Tag Manager (GTM) Enterprise Tracking Engine
+// Google Analytics 4 (GA4) Direct Integration Engine
 declare global {
   interface Window {
     dataLayer: any[];
@@ -8,7 +8,7 @@ declare global {
 
 const MEASUREMENT_ID = 'G-WBB0P6C9DM';
 
-// Ensure window.dataLayer and window.gtag are always safely defined (GTM-Optional tracking queue)
+// Ensure window.dataLayer and window.gtag are safely defined
 if (typeof window !== 'undefined') {
   window.dataLayer = window.dataLayer || [];
   if (!window.gtag) {
@@ -18,7 +18,7 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Utility helper to gather marketing and traffic source query parameters (sessions/attribution)
+// Helper to extract session source
 const getSessionSource = (): string => {
   if (typeof window === 'undefined') return 'organic';
   const urlParams = new URLSearchParams(window.location.search);
@@ -42,32 +42,27 @@ const getSessionSource = (): string => {
   return 'direct';
 };
 
-// Generates correct unified context mapping for both GA4 & GTM dataLayer parameters
+// Generates context for GA4 event parameters
 const getCurrentContext = () => {
   if (typeof window === 'undefined') {
     return {
-      page_name: '',
+      page_title: '',
       page_path: '',
       page_location: '',
-      device_type: 'desktop',
-      referrer_source: 'direct',
-      session_source: 'direct'
+      device_type: 'desktop'
     };
   }
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   return {
-    page_name: document.title,
+    page_title: document.title,
     page_path: window.location.pathname + window.location.hash || '/',
     page_location: window.location.href,
-    device_type: isMobile ? 'mobile' : 'desktop',
-    referrer_source: document.referrer || 'direct',
-    session_source: getSessionSource()
+    device_type: isMobile ? 'mobile' : 'desktop'
   };
 };
 
 /**
  * 1. SPA Dynamic Page Tracking System
- * Updates document titles and sends correct page_view events ensuring GA4 routes separately.
  */
 export const trackPageView = (title: string, path: string) => {
   if (typeof window === 'undefined') return;
@@ -75,161 +70,59 @@ export const trackPageView = (title: string, path: string) => {
   // Set document title dynamically
   document.title = title;
 
-  const currentTab = path.startsWith('/') ? path : `/${path}`;
-  const gLocation = window.location.origin + currentTab;
-  const ctx = getCurrentContext();
-
-  // Set general global tracker properties
   if (window.gtag) {
-    window.gtag('set', {
-      page_title: title,
-      page_path: currentTab,
-      page_location: gLocation,
-      device_type: ctx.device_type,
-      referrer_source: ctx.referrer_source,
-      session_source: ctx.session_source
-    });
-
-    // Fire config manually to force separated real-time and standard reports
-    window.gtag('config', MEASUREMENT_ID, {
-      page_title: title,
-      page_location: gLocation,
-      page_path: currentTab,
-      device_type: ctx.device_type
-    });
-
-    // Fire an explicit manual page_view event for safety
     window.gtag('event', 'page_view', {
       page_title: title,
-      page_name: title,
-      page_path: currentTab,
-      page_location: gLocation,
-      device_type: ctx.device_type,
-      referrer_source: ctx.referrer_source,
-      session_source: ctx.session_source,
-      send_to: MEASUREMENT_ID
+      page_location: window.location.href,
+      page_path: path
     });
+    console.log('Page View Sent');
+    console.log(`[GA4-Analytics] Page view event dispatched for "${title}" on path "${path}"`);
   }
-
-  // Push to GTM compatible dataLayer architecture
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'page_view',
-    page_title: title,
-    page_name: title,
-    page_path: currentTab,
-    page_location: gLocation,
-    device_type: ctx.device_type,
-    referrer_source: ctx.referrer_source,
-    session_source: ctx.session_source,
-    timestamp: new Date().toISOString()
-  });
 };
 
 /**
- * 2. WhatsApp Click Tracking (Floating, Support, Checkout, Footer, etc.)
- * Maps clicks instantly to custom events like floating_whatsapp_click and navbar_whatsapp_click.
- * Provides precise GTM and GA4 validation compliance with robust debugging output.
+ * 2. WhatsApp Click Tracking (Floating, navbar, support, footer, etc.)
  */
 export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq') => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
-  const timestamp = new Date().toISOString();
-
-  // Diagnostics logs for real-time validation check
-  console.log('WhatsApp click tracked');
-  console.log(`[GA4-Analytics] WhatsApp click detected. Type: ${buttonType}`, {
-    page_title: document.title,
-    page_path: window.location.pathname,
-    page_location: window.location.href,
-    button_type: buttonType,
-    timestamp: timestamp,
-    device_type: ctx.device_type
-  });
-
-  // Track event purely in GA4 (no GTM / dataLayer pushes for WhatsApp actions)
   if (window.gtag) {
     if (buttonType === 'floating') {
       window.gtag('event', 'floating_whatsapp_click', {
-        event_category: 'engagement',
-        event_label: 'Floating WhatsApp Button',
         page_title: document.title,
         page_path: window.location.pathname,
         page_location: window.location.href,
-        button_type: 'floating',
-        device_type: ctx.device_type,
-        timestamp: timestamp
+        button_type: 'floating'
       });
-      console.log('[GA4-Analytics] Fired GA4 event: floating_whatsapp_click');
-
-      window.gtag('event', 'submit_order', {
-        event_category: 'engagement',
-        event_label: 'WhatsApp Hotline Button Click - Submit Order',
-        page_title: document.title,
-        page_path: window.location.pathname,
-        page_location: window.location.href,
-        button_type: 'floating',
-        device_type: ctx.device_type,
-        timestamp: timestamp
-      });
-      console.log('[GA4-Analytics] Fired GA4 event: submit_order');
-
-      window.gtag('event', 'purchase_success', {
-        event_category: 'engagement',
-        event_label: 'WhatsApp Hotline Button Click - Purchase Success',
-        page_title: document.title,
-        page_path: window.location.pathname,
-        page_location: window.location.href,
-        button_type: 'floating',
-        value: 499,
-        currency: 'USD',
-        device_type: ctx.device_type,
-        timestamp: timestamp
-      });
-      console.log('[GA4-Analytics] Fired GA4 event: purchase_success');
-
+      console.log('WhatsApp Click Tracked');
     } else if (buttonType === 'navbar' || buttonType === 'navbar_support') {
       window.gtag('event', 'navbar_whatsapp_click', {
-        event_category: 'engagement',
-        event_label: 'Navbar WhatsApp Support',
         page_title: document.title,
         page_path: window.location.pathname,
         page_location: window.location.href,
-        button_type: buttonType,
-        device_type: ctx.device_type,
-        timestamp: timestamp
+        button_type: 'navbar'
       });
-      console.log('[GA4-Analytics] Fired GA4 event: navbar_whatsapp_click');
-
+      console.log('WhatsApp Click Tracked');
     } else {
-      // General direct mapping for other support, checkout, hero, footer, faq buttons
-      const clickEventName = `${buttonType}_whatsapp_click`;
-      window.gtag('event', clickEventName, {
-        event_category: 'engagement',
-        event_label: `WhatsApp ${buttonType.toUpperCase()} Click`,
-        page_title: document.title,
-        page_path: window.location.pathname,
-        page_location: window.location.href,
-        button_type: buttonType,
-        device_type: ctx.device_type,
-        timestamp: timestamp
+      // General fallback direct mapping for other support, checkout, hero, footer, faq buttons
+      window.gtag('event', 'navbar_whatsapp_click', {
+         page_title: document.title,
+         page_path: window.location.pathname,
+         page_location: window.location.href,
+         button_type: buttonType
       });
-      console.log(`[GA4-Analytics] Fired GA4 event: ${clickEventName}`);
+      console.log('WhatsApp Click Tracked');
     }
-  } else {
-    console.warn('[GA4-Analytics] WARNING: window.gtag is not defined. Event could not be dispatched.');
   }
 };
 
 /**
  * 3. Package Selection Custom Tracking
- * Handles select_starter_package, select_business_package, select_premium_package
  */
-export const trackPackageSelection = (pkgId: string, duration: 'monthly' | 'quarterly' | '3-month' | string) => {
+export const trackPackageSelection = (pkgId: string, duration: string) => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
   const prices: Record<string, number> = {
     starter: 149,
     business: 499,
@@ -238,53 +131,14 @@ export const trackPackageSelection = (pkgId: string, duration: 'monthly' | 'quar
   const pkgPrice = prices[pkgId.toLowerCase()] || 499;
   const pkgName = pkgId.toUpperCase();
 
-  // Exact custom event name requested (select_starter_package etc)
-  const exactEventName = `select_${pkgId.toLowerCase()}_package`;
-
   if (window.gtag) {
-    // 1. Fire select_package with dimensional variables
-    window.gtag('event', 'select_package', {
+    window.gtag('event', 'checkout_package_selected', {
       package_name: pkgName,
       package_price: pkgPrice,
-      billing_plan: duration,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      page_location: ctx.page_location,
-      device_type: ctx.device_type
+      billing_plan: duration
     });
-
-    // 2. Fire specific brand tracking events
-    window.gtag('event', exactEventName, {
-      package_name: pkgName,
-      package_price: pkgPrice,
-      billing_plan: duration,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      value: pkgPrice,
-      currency: 'USD'
-    });
+    console.log('Checkout Package Selected Event Sent');
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'package_selected', // Conversion trigger indicator
-    package_name: pkgName,
-    package_price: pkgPrice,
-    billing_plan: duration,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    device_type: ctx.device_type,
-    is_conversion: true
-  });
-
-  window.dataLayer.push({
-    event: exactEventName,
-    package_name: pkgName,
-    package_price: pkgPrice,
-    billing_plan: duration,
-    value: pkgPrice,
-    currency: 'USD'
-  });
 };
 
 /**
@@ -293,30 +147,17 @@ export const trackPackageSelection = (pkgId: string, duration: 'monthly' | 'quar
 export const trackAddonToggle = (addonId: string, addonName: string, selected: boolean, priceValue: number) => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
-
   if (window.gtag) {
     window.gtag('event', 'addon_selected', {
       addon_name: addonName,
-      package_price: priceValue,
       is_selected: selected,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      page_location: ctx.page_location,
-      device_type: ctx.device_type
+      addon_price: priceValue,
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: window.location.pathname
     });
+    console.log(`Add-on selected: ${addonName} - State: ${selected}`);
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'addon_selected',
-    addon_name: addonName,
-    package_price: priceValue,
-    is_selected: selected,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    device_type: ctx.device_type
-  });
 };
 
 /**
@@ -325,7 +166,6 @@ export const trackAddonToggle = (addonId: string, addonName: string, selected: b
 export const trackBeginCheckout = (pkgId: string, billingPlan: string) => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
   const prices: Record<string, number> = {
     starter: 149,
     business: 499,
@@ -334,32 +174,16 @@ export const trackBeginCheckout = (pkgId: string, billingPlan: string) => {
   const pkgPrice = prices[pkgId.toLowerCase()] || 499;
 
   if (window.gtag) {
-    window.gtag('event', 'begin_checkout', {
+    window.gtag('event', 'checkout_started', {
       package_name: pkgId.toUpperCase(),
       package_price: pkgPrice,
       billing_plan: billingPlan,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      page_location: ctx.page_location,
-      device_type: ctx.device_type,
-      referrer_source: ctx.referrer_source,
-      session_source: ctx.session_source
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: window.location.pathname
     });
+    console.log('Checkout Started Event Sent');
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'begin_checkout',
-    package_name: pkgId.toUpperCase(),
-    package_price: pkgPrice,
-    billing_plan: billingPlan,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    device_type: ctx.device_type,
-    referrer_source: ctx.referrer_source,
-    session_source: ctx.session_source,
-    is_conversion: true
-  });
 };
 
 /**
@@ -368,27 +192,15 @@ export const trackBeginCheckout = (pkgId: string, billingPlan: string) => {
 export const trackFunnelStep = (stepNumber: number, stepName: string, details?: Record<string, any>) => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
-
   if (window.gtag) {
     window.gtag('event', 'checkout_funnel', {
       step_number: stepNumber,
       step_name: stepName,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
+      page_title: document.title,
+      page_path: window.location.pathname,
       ...details
     });
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'checkout_step',
-    step_number: stepNumber,
-    step_name: stepName,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    ...details
-  });
 };
 
 /**
@@ -397,71 +209,31 @@ export const trackFunnelStep = (stepNumber: number, stepName: string, details?: 
 export const trackFormSubmit = (formName: string, details?: Record<string, any>) => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
-
   if (window.gtag) {
     window.gtag('event', 'form_submit', {
       form_name: formName,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      page_location: ctx.page_location,
-      device_type: ctx.device_type,
-      referrer_source: ctx.referrer_source,
-      session_source: ctx.session_source,
+      page_title: document.title,
+      page_path: window.location.pathname,
       ...details
     });
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'form_submit',
-    form_name: formName,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    device_type: ctx.device_type,
-    referrer_source: ctx.referrer_source,
-    session_source: ctx.session_source,
-    is_conversion: true,
-    ...details
-  });
 };
 
 /**
- * 7. Scroll Depth Tracking events (scroll_25, scroll_50, scroll_75, scroll_100)
+ * 7. Scroll Depth Tracking events
  */
 export const trackScrollEvent = (percentage: number) => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
-  const eventName = `scroll_${percentage}`;
-
   if (window.gtag) {
-    // Fire exact event requested (scroll_25 etc)
-    window.gtag('event', eventName, {
+    window.gtag('event', 'scroll_depth', {
       percent_scrolled: percentage,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      page_location: ctx.page_location,
-      device_type: ctx.device_type
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: window.location.pathname
     });
-
-    // Also fire broad general scroll config for reports
-    window.gtag('event', 'scroll', {
-      percent_scrolled: percentage,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      page_location: ctx.page_location
-    });
+    console.log(`Scroll Depth Tracked: ${percentage}%`);
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: eventName,
-    percent_scrolled: percentage,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    device_type: ctx.device_type
-  });
 };
 
 /**
@@ -470,87 +242,47 @@ export const trackScrollEvent = (percentage: number) => {
 export const trackCtaClick = (ctaLabel: string, sectionName: string) => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
-
   if (window.gtag) {
     window.gtag('event', 'cta_click', {
-      button_type: 'cta',
       cta_label: ctaLabel,
       section: sectionName,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      page_location: ctx.page_location,
-      device_type: ctx.device_type,
-      referrer_source: ctx.referrer_source,
-      session_source: ctx.session_source
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: window.location.pathname
     });
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'cta_click',
-    cta_label: ctaLabel,
-    section: sectionName,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    device_type: ctx.device_type
-  });
 };
 
 /**
- * 9. FAQ Toggle and Accordion Expansion Tracker
+ * 9. FAQ Toggle Tracker
  */
 export const trackFaqExpand = (questionName: string) => {
   if (typeof window === 'undefined') return;
 
-  const ctx = getCurrentContext();
-
   if (window.gtag) {
     window.gtag('event', 'faq_expand', {
       faq_question: questionName,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      page_location: ctx.page_location,
-      device_type: ctx.device_type
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: window.location.pathname
     });
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'faq_expand',
-    faq_question: questionName,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path
-  });
 };
 
 /**
- * Comprehensive direct dimension tracker
+ * Form interaction tracker
  */
 export const trackFormInteraction = (formName: string, actionName: string, details?: Record<string, any>) => {
   if (typeof window === 'undefined') return;
-
-  const ctx = getCurrentContext();
 
   if (window.gtag) {
     window.gtag('event', 'form_interaction', {
       form_id: formName,
       form_action: actionName,
-      page_name: ctx.page_name,
-      page_path: ctx.page_path,
-      device_type: ctx.device_type,
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: window.location.pathname,
       ...details
     });
   }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'form_interaction',
-    form_id: formName,
-    form_action: actionName,
-    page_name: ctx.page_name,
-    page_path: ctx.page_path,
-    device_type: ctx.device_type,
-    ...details
-  });
 };

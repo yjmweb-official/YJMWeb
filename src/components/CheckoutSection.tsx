@@ -17,7 +17,8 @@ import {
   trackFunnelStep, 
   trackFormInteraction,
   trackBeginCheckout,
-  trackFormSubmit
+  trackFormSubmit,
+  trackPackageSelection
 } from '../lib/analytics';
 
 const COUNTRIES = [
@@ -97,8 +98,9 @@ export default function CheckoutSection({ initialPackageId = 'business', onOrder
       plan_id: selectedPlan.id,
       addons_count: selectedAddOnIds.length
     });
-    // Fire exact event requested
+    // Fire exact events requested
     trackBeginCheckout(selectedPackage.id, selectedPlan.id);
+    trackPackageSelection(selectedPackage.id, selectedPlan.id);
   }, [selectedPackage.id, selectedPlan.id]);
 
   // Recalculate totals

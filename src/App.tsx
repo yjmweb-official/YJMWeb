@@ -61,11 +61,13 @@ function PhilosophyFeatureCard({ title, description, dotClass }: { title: string
 }
 
 export default function App() {
+  const [whatsappRedirectUrl, setWhatsappRedirectUrl] = useState<string>('');
+  
   // Read hash on initialize to support deep linking and accurate initial GA reports
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== 'undefined' && window.location.hash) {
       const hash = window.location.hash.substring(1);
-      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact'];
+      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'whatsapploading'];
       if (validTabs.includes(hash)) {
         return hash;
       }
@@ -87,16 +89,49 @@ export default function App() {
       // Instantly dispatch original button click tracking (keeps it robust)
       trackWhatsAppClick(buttonType);
 
-      // Direct window open launch
-      if (typeof window !== 'undefined') {
-        window.open(url, '_blank');
-      }
+      // Save URL and switch tab to start loading redirect flow
+      setWhatsappRedirectUrl(url);
+      setActiveTab('whatsapploading');
     };
 
     return () => {
       delete (window as any).triggerWhatsAppPopup;
     };
   }, []);
+
+  // Track WhatsApp Loading Page and handle final redirection with analytics callbacks
+  useEffect(() => {
+    if (activeTab === 'whatsapploading') {
+      const targetUrl = whatsappRedirectUrl || 'https://wa.me/94776826937';
+
+      // 1. WhatsApp Connection Started Event
+      if (window.gtag) {
+        window.gtag('event', 'whatsapp_connection_started', {
+          page_title: 'YJMWeb - Connecting to WhatsApp',
+          page_path: '/whatsapploading'
+        });
+        console.log('whatsapp_connection_started');
+      }
+
+      // 1.25 seconds delay for premium UX + absolute guarantee checkout event propagates
+      const timer = setTimeout(() => {
+        // 2. WhatsApp Redirect Completed Event
+        if (window.gtag) {
+          window.gtag('event', 'whatsapp_redirect_completed', {
+            page_title: 'YJMWeb - Connecting to WhatsApp',
+            page_path: '/whatsapploading',
+            target_url: targetUrl
+          });
+          console.log('whatsapp_redirect_completed');
+        }
+
+        // Final safe programmatic redirection
+        window.location.href = targetUrl;
+      }, 1250);
+
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, whatsappRedirectUrl]);
 
   // Synchronize dynamic URL update and send manual page views to Google Analytics
   useEffect(() => {
@@ -135,6 +170,9 @@ export default function App() {
         break;
       case 'contact':
         title = 'YJMWeb - Contact';
+        break;
+      case 'whatsapploading':
+        title = 'YJMWeb - Connecting to WhatsApp';
         break;
       default:
         title = 'YJMWeb - Home';
@@ -1053,6 +1091,46 @@ export default function App() {
                 initialPackageId={selectedPackageId} 
                 onOrderSuccess={handleOrderSuccess} 
               />
+            </motion.div>
+          )}
+
+          {/* View Tab: WHATSAPP REDIRECTION LOADER SCREEN */}
+          {activeTab === 'whatsapploading' && (
+            <motion.div
+              key="whatsapploading-tab"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="min-h-[50vh] flex flex-col items-center justify-center py-16"
+              id="whatsapp-redirect-loader-view"
+            >
+              <div className="glass-panel max-w-md w-full p-8 rounded-3xl border-white/5 bg-neutral-950/80 backdrop-blur-md text-center space-y-6 relative overflow-hidden">
+                {/* Background decorative glow elements */}
+                <div className="absolute top-[-20%] left-[-20%] w-48 h-48 bg-green-500/10 rounded-full blur-[80px]" />
+                <div className="absolute bottom-[-20%] right-[-20%] w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px]" />
+                
+                {/* Glowing spinner with modern aesthetic */}
+                <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+                  <span className="absolute inset-0 rounded-full border-4 border-emerald-500/10" />
+                  <span className="absolute inset-0 rounded-full border-4 border-t-emerald-400 animate-spin" />
+                  <MessageSquare className="w-8 h-8 text-emerald-400 fill-emerald-400/10 stroke-[1.5]" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h2 className="text-xl font-display font-medium text-white">Connecting Secure Hotline</h2>
+                  <p className="text-3xs font-mono uppercase tracking-widest text-emerald-400">YJMWeb Secure Forwarder</p>
+                </div>
+                
+                <p className="text-xs text-neutral-400 leading-relaxed max-w-xs mx-auto">
+                  Syncing diagnostics data and loading pre-addressed order parameters into your local client. Redirecting to WhatsApp...
+                </p>
+
+                {/* Subtle Progress Bar */}
+                <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full" style={{ width: '80%' }} />
+                </div>
+              </div>
             </motion.div>
           )}
 
