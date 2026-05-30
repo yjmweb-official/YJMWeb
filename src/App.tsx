@@ -8,7 +8,8 @@ import {
   ArrowRight, Sparkles, MessageSquare, ShieldCheck, Cpu, 
   Utensils, Globe, Gauge, HelpCircle, Flame, Star, 
   BookOpen, Phone, MapPin, CheckCircle, Smartphone, 
-  Settings, ShoppingBag, Clock, Heart, Award, Key, Play
+  Settings, ShoppingBag, Clock, Heart, Award, Key, Play,
+  ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -23,6 +24,9 @@ import Footer from './components/Footer';
 
 // Static Data
 import { PACKAGES, TESTIMONIALS, RESTAURANT_FEATURES } from './data';
+
+// Centralised Domain Configuration for Seamless Custom Domain Migration (e.g. yjmweb.com)
+export const PRIMARY_DOMAIN = 'https://yjmweb.vercel.app';
 
 // Analytics tracking
 import { 
@@ -158,53 +162,53 @@ export default function App() {
 
     let title = 'YJMWeb | Professional Website Design & Management';
     let metaDesc = 'YJMWeb delivers premium custom-coded websites, blazing-fast speed optimization, and hands-free maintenance packages.';
-    let canonical = 'https://yjmweb.vercel.app/';
+    let canonical = `${PRIMARY_DOMAIN}/`;
 
     switch (activeTab) {
       case 'landing':
         title = 'YJMWeb | Professional Website Design & Management';
         metaDesc = 'YJMWeb delivers premium custom-coded websites, blazing-fast speed optimization, and hands-free maintenance packages.';
-        canonical = 'https://yjmweb.vercel.app/';
+        canonical = `${PRIMARY_DOMAIN}/`;
         break;
       case 'features':
         title = 'YJMWeb Solutions | Engineered Web Features';
         metaDesc = 'Explore our advanced technical stack including responsive bento-grid templates, fast-load CDNs, automated security backups, and server optimization.';
-        canonical = 'https://yjmweb.vercel.app/features';
+        canonical = `${PRIMARY_DOMAIN}/features`;
         break;
       case 'pricing':
         title = 'YJMWeb Pricing | Website Packages & Management Plans';
         metaDesc = 'Explore our transparent flat-rate pricing packages and flexible quarterly maintenance schedules designed for businesses of all sizes.';
-        canonical = 'https://yjmweb.vercel.app/pricing';
+        canonical = `${PRIMARY_DOMAIN}/pricing`;
         break;
       case 'management':
         title = 'YJMWeb Management | Dedicated Website Maintenance & Upgrades';
         metaDesc = 'Choose our business management subscription schedules covering hosting upgrades, search console configurations, offsite backups, and SEO sweeps.';
-        canonical = 'https://yjmweb.vercel.app/management';
+        canonical = `${PRIMARY_DOMAIN}/management`;
         break;
       case 'logos':
         title = 'YJMWeb Brand Blueprinting | Custom Logo Designs & Layouts';
         metaDesc = 'Skip static stock templates. Our premium vector design crew drafts custom SVG logo files matching your direct corporate aesthetic rules.';
-        canonical = 'https://yjmweb.vercel.app/logos';
+        canonical = `${PRIMARY_DOMAIN}/logos`;
         break;
       case 'checkout':
         title = 'YJMWeb Checkout | Launch Your Website Project';
         metaDesc = 'Customize your futuristic web solution, toggle premium modules, estimate setup and rolling support costs, and submit your request to lock launch priority.';
-        canonical = 'https://yjmweb.vercel.app/checkout';
+        canonical = `${PRIMARY_DOMAIN}/checkout`;
         break;
       case 'contact':
         title = 'Contact YJMWeb | Website Design & Support';
         metaDesc = 'Speak directly with our expert team to schedule your free consultation or request dedicated website maintenance and tech support.';
-        canonical = 'https://yjmweb.vercel.app/contact';
+        canonical = `${PRIMARY_DOMAIN}/contact`;
         break;
       case 'faq':
         title = 'YJMWeb FAQ | Frequently Asked Questions';
         metaDesc = 'Find quick answers to common questions about our custom web design, secure hosting, monthly updates, and pricing plans.';
-        canonical = 'https://yjmweb.vercel.app/faq';
+        canonical = `${PRIMARY_DOMAIN}/faq`;
         break;
       case 'whatsapploading':
         title = 'YJMWeb - Connecting to WhatsApp...';
         metaDesc = 'Successfully initiating direct secure link channel on WhatsApp. Please hold while we load your tailored chat workspace.';
-        canonical = 'https://yjmweb.vercel.app/whatsapploading';
+        canonical = `${PRIMARY_DOMAIN}/whatsapploading`;
         break;
     }
 
@@ -256,11 +260,11 @@ export default function App() {
     const organizationSchema = {
       '@context': 'https://schema.org',
       '@type': 'ProfessionalService',
-      '@id': 'https://yjmweb.vercel.app/#organization',
+      '@id': `${PRIMARY_DOMAIN}/#organization`,
       'name': 'YJMWeb',
-      'url': 'https://yjmweb.vercel.app',
-      'logo': 'https://yjmweb.vercel.app/logo.png',
-      'image': 'https://yjmweb.vercel.app/logo.png',
+      'url': PRIMARY_DOMAIN,
+      'logo': `${PRIMARY_DOMAIN}/logo.png`,
+      'image': `${PRIMARY_DOMAIN}/logo.png`,
       'telephone': '+94776826937',
       'priceRange': '$$',
       'address': {
@@ -274,12 +278,12 @@ export default function App() {
     const websiteSchema = {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      '@id': 'https://yjmweb.vercel.app/#website',
+      '@id': `${PRIMARY_DOMAIN}/#website`,
       'name': 'YJMWeb',
-      'url': 'https://yjmweb.vercel.app',
+      'url': PRIMARY_DOMAIN,
       'potentialAction': {
         '@type': 'SearchAction',
-        'target': 'https://yjmweb.vercel.app/#search?q={search_term_string}',
+        'target': `${PRIMARY_DOMAIN}/#search?q={search_term_string}`,
         'query-input': 'required name=search_term_string'
       }
     };
@@ -291,8 +295,8 @@ export default function App() {
       'url': canonical,
       'name': title,
       'description': metaDesc,
-      'isPartOf': { '@id': 'https://yjmweb.vercel.app/#website' },
-      'about': { '@id': 'https://yjmweb.vercel.app/#organization' }
+      'isPartOf': { '@id': `${PRIMARY_DOMAIN}/#website` },
+      'about': { '@id': `${PRIMARY_DOMAIN}/#organization` }
     };
 
     const combinedSchemas: any[] = [organizationSchema, websiteSchema, webpageSchema];
@@ -344,6 +348,16 @@ export default function App() {
       const targetPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
       if (typeof window !== 'undefined' && window.location.pathname !== targetPath) {
         window.history.replaceState(null, '', targetPath);
+      }
+    }
+
+    // Noindex robots tag for whatsapploading page as requested by user
+    if (activeTab === 'whatsapploading') {
+      updateOrCreateMetaTag('name', 'robots', 'noindex');
+    } else {
+      const robotsEl = document.querySelector('meta[name="robots"]');
+      if (robotsEl) {
+        robotsEl.remove();
       }
     }
   }, [activeTab]);
@@ -1287,6 +1301,20 @@ export default function App() {
                 {/* Subtle Progress Bar */}
                 <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full" style={{ width: '80%' }} />
+                </div>
+
+                {/* Return Back Button */}
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      setActiveTab('landing');
+                    }}
+                    className="px-5 py-2.5 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-full text-xs font-mono text-neutral-300 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-2 mx-auto select-none"
+                    id="btn-whatsapp-cancel"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
+                    Cancel &amp; Return Home
+                  </button>
                 </div>
               </div>
             </motion.div>
