@@ -1,0 +1,6 @@
+# Force direct static resolution for SEO files, avoiding fallback SPA routing
+/sitemap.xml /sitemap.xml 200
+/robots.txt /robots.txt 200
+
+# Catch-all path for React Single Page Application routing
+/* /index.html 200
