@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://yjmweb.com/sitemap.xml
+Sitemap: https://yjmweb.vercel.app/sitemap.xml

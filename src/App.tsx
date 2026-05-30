@@ -63,13 +63,21 @@ function PhilosophyFeatureCard({ title, description, dotClass }: { title: string
 export default function App() {
   const [whatsappRedirectUrl, setWhatsappRedirectUrl] = useState<string>('');
   
-  // Read hash on initialize to support deep linking and accurate initial GA reports
+  // Read path or hash on initialize to support deep linking and accurate initial GA reports
   const [activeTab, setActiveTab] = useState<string>(() => {
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const hash = window.location.hash.substring(1);
-      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'whatsapploading'];
-      if (validTabs.includes(hash)) {
-        return hash;
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.replace(/^\/|\/$/g, '');
+      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'faq', 'whatsapploading'];
+      
+      if (validTabs.includes(path)) {
+        return path;
+      }
+      
+      if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        if (validTabs.includes(hash)) {
+          return hash;
+        }
       }
     }
     return 'landing';
@@ -135,7 +143,7 @@ export default function App() {
 
   // Synchronize dynamic URL update and send manual page views to Google Analytics
   useEffect(() => {
-    if (activeTab === 'contact') {
+    if (activeTab === 'contact' || activeTab === 'faq') {
       setTimeout(() => {
         const contactSection = document.getElementById('faq-contact-segment');
         if (contactSection) {
@@ -148,45 +156,195 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    let title = 'YJMWeb - Home';
+    let title = 'YJMWeb | Professional Website Design & Management';
+    let metaDesc = 'YJMWeb delivers premium custom-coded websites, blazing-fast speed optimization, and hands-free maintenance packages.';
+    let canonical = 'https://yjmweb.vercel.app/';
+
     switch (activeTab) {
       case 'landing':
-        title = 'YJMWeb - Home';
+        title = 'YJMWeb | Professional Website Design & Management';
+        metaDesc = 'YJMWeb delivers premium custom-coded websites, blazing-fast speed optimization, and hands-free maintenance packages.';
+        canonical = 'https://yjmweb.vercel.app/';
         break;
       case 'features':
-        title = 'YJMWeb - Solutions';
+        title = 'YJMWeb Solutions | Engineered Web Features';
+        metaDesc = 'Explore our advanced technical stack including responsive bento-grid templates, fast-load CDNs, automated security backups, and server optimization.';
+        canonical = 'https://yjmweb.vercel.app/features';
         break;
       case 'pricing':
-        title = 'YJMWeb - Pricing';
+        title = 'YJMWeb Pricing | Website Packages & Management Plans';
+        metaDesc = 'Explore our transparent flat-rate pricing packages and flexible quarterly maintenance schedules designed for businesses of all sizes.';
+        canonical = 'https://yjmweb.vercel.app/pricing';
         break;
       case 'management':
-        title = 'YJMWeb - Management Plan';
+        title = 'YJMWeb Management | Dedicated Website Maintenance & Upgrades';
+        metaDesc = 'Choose our business management subscription schedules covering hosting upgrades, search console configurations, offsite backups, and SEO sweeps.';
+        canonical = 'https://yjmweb.vercel.app/management';
         break;
       case 'logos':
-        title = 'YJMWeb - Branding Lab';
+        title = 'YJMWeb Brand Blueprinting | Custom Logo Designs & Layouts';
+        metaDesc = 'Skip static stock templates. Our premium vector design crew drafts custom SVG logo files matching your direct corporate aesthetic rules.';
+        canonical = 'https://yjmweb.vercel.app/logos';
         break;
       case 'checkout':
-        title = 'YJMWeb - Checkout';
+        title = 'YJMWeb Checkout | Launch Your Website Project';
+        metaDesc = 'Customize your futuristic web solution, toggle premium modules, estimate setup and rolling support costs, and submit your request to lock launch priority.';
+        canonical = 'https://yjmweb.vercel.app/checkout';
         break;
       case 'contact':
-        title = 'YJMWeb - Contact';
+        title = 'Contact YJMWeb | Website Design & Support';
+        metaDesc = 'Speak directly with our expert team to schedule your free consultation or request dedicated website maintenance and tech support.';
+        canonical = 'https://yjmweb.vercel.app/contact';
+        break;
+      case 'faq':
+        title = 'YJMWeb FAQ | Frequently Asked Questions';
+        metaDesc = 'Find quick answers to common questions about our custom web design, secure hosting, monthly updates, and pricing plans.';
+        canonical = 'https://yjmweb.vercel.app/faq';
         break;
       case 'whatsapploading':
-        title = 'YJMWeb - Connecting to WhatsApp';
+        title = 'YJMWeb - Connecting to WhatsApp...';
+        metaDesc = 'Successfully initiating direct secure link channel on WhatsApp. Please hold while we load your tailored chat workspace.';
+        canonical = 'https://yjmweb.vercel.app/whatsapploading';
         break;
-      default:
-        title = 'YJMWeb - Home';
     }
 
     // Call unified tracker for page views
     const routerPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
     trackPageView(title, routerPath);
 
-    // Mutate the hash suffix to visually represent routing in browser and let GA feel URL state changes
-    const targetHash = activeTab === 'landing' ? '' : `#${activeTab}`;
-    if (typeof window !== 'undefined' && window.location.hash !== targetHash) {
-      const cleanUrl = window.location.pathname + targetHash;
-      window.history.replaceState(null, '', cleanUrl);
+    // Sync HTML document title
+    document.title = title;
+
+    // Helper to safely update meta tag values
+    const updateOrCreateMetaTag = (attrName: string, attrVal: string, contentVal: string, isProp = false) => {
+      const selector = `meta[${isProp ? 'property' : 'name'}="${attrVal}"]`;
+      let el = document.querySelector(selector);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute(isProp ? 'property' : 'name', attrVal);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', contentVal);
+    };
+
+    // Update tags
+    updateOrCreateMetaTag('name', 'description', metaDesc);
+    updateOrCreateMetaTag('property', 'og:title', title, true);
+    updateOrCreateMetaTag('property', 'og:description', metaDesc, true);
+    updateOrCreateMetaTag('property', 'og:url', canonical, true);
+    updateOrCreateMetaTag('name', 'twitter:title', title);
+    updateOrCreateMetaTag('name', 'twitter:description', metaDesc);
+
+    // Update canonical link element
+    let canonicalEl = document.querySelector('link[rel="canonical"]');
+    if (!canonicalEl) {
+      canonicalEl = document.createElement('link');
+      canonicalEl.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalEl);
+    }
+    canonicalEl.setAttribute('href', canonical);
+
+    // Dynamic JSON-LD structured data creation
+    let schemaEl = document.getElementById('json-ld-schema') as HTMLScriptElement;
+    if (!schemaEl) {
+      schemaEl = document.createElement('script');
+      schemaEl.id = 'json-ld-schema';
+      schemaEl.type = 'application/ld+json';
+      document.head.appendChild(schemaEl);
+    }
+
+    const organizationSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'ProfessionalService',
+      '@id': 'https://yjmweb.vercel.app/#organization',
+      'name': 'YJMWeb',
+      'url': 'https://yjmweb.vercel.app',
+      'logo': 'https://yjmweb.vercel.app/logo.png',
+      'image': 'https://yjmweb.vercel.app/logo.png',
+      'telephone': '+94776826937',
+      'priceRange': '$$',
+      'address': {
+        '@type': 'PostalAddress',
+        'streetAddress': '15 Galle Road',
+        'addressLocality': 'Colombo 03',
+        'addressCountry': 'LK'
+      }
+    };
+
+    const websiteSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': 'https://yjmweb.vercel.app/#website',
+      'name': 'YJMWeb',
+      'url': 'https://yjmweb.vercel.app',
+      'potentialAction': {
+        '@type': 'SearchAction',
+        'target': 'https://yjmweb.vercel.app/#search?q={search_term_string}',
+        'query-input': 'required name=search_term_string'
+      }
+    };
+
+    const webpageSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': `${canonical}#webpage`,
+      'url': canonical,
+      'name': title,
+      'description': metaDesc,
+      'isPartOf': { '@id': 'https://yjmweb.vercel.app/#website' },
+      'about': { '@id': 'https://yjmweb.vercel.app/#organization' }
+    };
+
+    const combinedSchemas: any[] = [organizationSchema, websiteSchema, webpageSchema];
+
+    if (activeTab === 'landing' || activeTab === 'faq') {
+      combinedSchemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': [
+          {
+            '@type': 'Question',
+            'name': 'How long does a custom business package setup take?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'We build custom-fit high-conversion storefronts and landing portfolios within 7 to 14 business days, including full server setup, Google Console indices, and testing campaigns.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': 'Do we get true custom system builds instead of templates?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Yes! Everything we deliver is hand-coded using state-of-the-art frameworks like React, Vite, and Tailwind CSS. No sluggish builders or templates are used.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': 'How do the rolling monthly management services work?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'We monitor all background systems, run continuous cloud backups, configure search listings, track key performance, and handle minor design updates so you do not have to think about website server problems.'
+            }
+          }
+        ]
+      });
+    }
+
+    schemaEl.text = JSON.stringify(combinedSchemas);
+
+    // Keep the hash/pathname visually represent routing in browser
+    const usesHash = window.location.hash || !window.location.pathname || window.location.pathname === '/';
+    if (usesHash) {
+      const targetHash = activeTab === 'landing' ? '' : `#${activeTab}`;
+      if (typeof window !== 'undefined' && window.location.hash !== targetHash) {
+        const cleanUrl = window.location.pathname + targetHash;
+        window.history.replaceState(null, '', cleanUrl);
+      }
+    } else {
+      const targetPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
+      if (typeof window !== 'undefined' && window.location.pathname !== targetPath) {
+        window.history.replaceState(null, '', targetPath);
+      }
     }
   }, [activeTab]);
 
@@ -390,7 +548,7 @@ export default function App() {
         <AnimatePresence mode="wait">
           
           {/* View Tab 1: LANDING PAGE */}
-          {(activeTab === 'landing' || activeTab === 'contact') && (
+          {(activeTab === 'landing' || activeTab === 'contact' || activeTab === 'faq') && (
             <motion.div
               key="landing"
               initial={{ opacity: 0, y: 15 }}
