@@ -30,7 +30,7 @@ We have implemented a **dual-delivery hybrid engine** that couples direct Google
 ### Step 1: Root HTML Direct Installation (`/index.html`)
 Both systems are loaded at the absolute highest point of `<head>` using direct native templates to enable GTM/GA4 instant identification by **Google Tag Assistant**:
 * **GTM ID**: `GTM-KRFJVQRW`
-* **GA4 Measurement ID**: `G-QFY8QZW1BY`
+* **GA4 Measurement ID**: `G-WBB0P6C9DM`
 
 ```html
 <!-- Google Tag Manager -->
@@ -44,14 +44,14 @@ Both systems are loaded at the absolute highest point of `<head>` using direct n
 <!-- End Google Tag Manager -->
 
 <!-- Google Analytics 4 (GA4) Direct Connection -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QFY8QZW1BY"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WBB0P6C9DM"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){
     dataLayer.push(arguments);
   }
   gtag('js', new Date());
-  gtag('config', 'G-QFY8QZW1BY', { 
+  gtag('config', 'G-WBB0P6C9DM', { 
     send_page_view: true,
     cookie_flags: 'max-age=7200;Secure;SameSite=None'
   });
@@ -85,7 +85,7 @@ export const trackPageView = (title: string, path: string) => {
     page_path: currentTab,
     page_location: gLocation,
     device_type: ctx.device_type,
-    send_to: 'G-QFY8QZW1BY'
+    send_to: 'G-WBB0P6C9DM'
   });
 
   // Push to GTM dataLayer

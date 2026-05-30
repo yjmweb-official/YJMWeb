@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-const MEASUREMENT_ID = 'G-QFY8QZW1BY';
+const MEASUREMENT_ID = 'G-WBB0P6C9DM';
 
 // Ensure window.dataLayer and window.gtag are always safely defined (GTM-Optional tracking queue)
 if (typeof window !== 'undefined') {
