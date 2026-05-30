@@ -36,7 +36,7 @@ export default function LogoConcepts() {
       return;
     }
 
-    const msg = `🎨 *YJMWeb Branding Lab - Custom Logo Order ($15)* 🎨\n-----------------------------------------\n👤 *Client Contacts:*\n- Brand Name: ${logoBrandName}\n- Design Vibe: ${logoAesthetic}\n- Color Scheme: ${logoColors || 'Any / Designer Choice'}\n- Symbolism Notes: ${logoSymbolism || 'None provided.'}\n\n-----------------------------------------\n💳 *Logo Art Commission rate:* $15 one-time Setup Fee\n_Please generate our custom vector logo layout blueprints!_`;
+    const msg = `🎨 *YJMWeb Branding Lab - Custom Logo Order ($14)* 🎨\n-----------------------------------------\n👤 *Client Contacts:*\n- Brand Name: ${logoBrandName}\n- Design Vibe: ${logoAesthetic}\n- Color Scheme: ${logoColors || 'Any / Designer Choice'}\n- Symbolism Notes: ${logoSymbolism || 'None provided.'}\n\n-----------------------------------------\n💳 *Logo Art Commission rate:* $14 one-time Setup Fee\n_Please generate our custom vector logo layout blueprints!_`;
 
     const encoded = encodeURIComponent(msg);
     const targetUrl = `https://wa.me/94776826937?text=${encoded}`;
@@ -382,13 +382,13 @@ export default function LogoConcepts() {
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="text-center space-y-2">
             <span className="text-3xs font-mono uppercase bg-neon-purple/10 text-neon-purple px-2.5 py-1 rounded-full border border-neon-purple/20">
-              Logo Strategy Workshop • $15
+              Logo Strategy Workshop • $14
             </span>
             <h4 className="text-xl sm:text-2xl font-display font-medium text-white">
               Order Custom Brand Identity Blueprints
             </h4>
             <p className="text-neutral-400 text-xs max-w-lg mx-auto leading-relaxed">
-              Skip static stock templates. Our design crew will draft customized vector SVG logo files matching your specific company tone for a single transparent flat-rate of <strong>$15</strong>.
+              Skip static stock templates. Our design crew will draft customized vector SVG logo files matching your specific company tone for a single transparent flat-rate of <strong>$14</strong>.
             </p>
           </div>
 
@@ -458,7 +458,7 @@ export default function LogoConcepts() {
             <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <span className="text-2xs font-mono uppercase text-neutral-500 block">Art Studio Commission rate:</span>
-                <span className="text-2xl font-mono text-amber-400 font-bold">$15.00</span>
+                <span className="text-2xl font-mono text-amber-400 font-bold">$14.00</span>
                 <span className="text-3xs text-neutral-500 ml-1.5 font-mono">One-Time flat fee</span>
               </div>
 
@@ -467,7 +467,7 @@ export default function LogoConcepts() {
                 className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-neon-purple via-neon-pink to-amber-500 text-white font-display font-semibold rounded-xl text-xs sm:text-sm shadow-md shadow-neon-purple/10 transition-all hover:opacity-95 active:scale-[0.98] cursor-pointer"
               >
                 <MessageSquare className="w-4 h-4 fill-white/10" />
-                Submit Logo Design Request ($15)
+                Submit Logo Design Request ($14)
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
