@@ -1,33 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- Premium Neon-Blue to Neon-Purple linear gradient -->
-    <linearGradient id="gradient-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00f3ff" />
-      <stop offset="100%" stop-color="#bd00ff" />
-    </linearGradient>
-    <!-- Background sleek dark-mode gradient to provide high contrast -->
-    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#0a0a0d" />
-      <stop offset="100%" stop-color="#020203" />
+    <!-- High-end gradient matching the uploaded logo: soft sky blue to vibrant lavender purple -->
+    <linearGradient id="uploaded-logo-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#73c5ff" />
+      <stop offset="42%" stop-color="#9d8eff" />
+      <stop offset="100%" stop-color="#bd53ff" />
     </linearGradient>
   </defs>
 
-  <!-- Sleek high-contrast dark boxed background frame (the "boxed Y" concept) -->
-  <rect x="20" y="20" width="472" height="472" rx="110" fill="url(#bg-grad)" stroke="url(#gradient-glow)" stroke-width="24" />
+  <!-- Solid rounded rectangle frame mapping to the beautiful squircle capsule look -->
+  <rect x="24" y="24" width="464" height="464" rx="116" fill="url(#uploaded-logo-gradient)" />
 
-  <!-- Inner active border to accent the technical design -->
-  <rect x="48" y="48" width="416" height="416" rx="82" fill="none" stroke="url(#gradient-glow)" stroke-width="4" stroke-dasharray="16 12" opacity="0.4" />
-
-  <!-- Inside "Y" symbol central geometric monogram -->
-  <g stroke="url(#gradient-glow)" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <!-- Main Y stems with robust high-contrast line weighting -->
-    <path d="M 145 140 L 256 256 Q 256 256 256 256 L 367 140" stroke-width="38" />
-    <path d="M 256 256 L 256 385" stroke-width="38" />
-    
-    <!-- Cybernetic terminal nodes for corporate design authority -->
-    <circle cx="256" cy="256" r="12" fill="#ffffff" stroke="none" />
-    <circle cx="145" cy="140" r="10" fill="#00f3ff" stroke="none" />
-    <circle cx="367" cy="140" r="10" fill="#bd00ff" stroke="none" />
-    <circle cx="256" cy="385" r="10" fill="#bd00ff" stroke="none" />
-  </g>
+  <!-- Precise geometric bold "Y" vector monogram centered beautifully -->
+  <path 
+    d="M 148 135 L 206 135 L 256 208 L 306 135 L 364 135 L 284 252 L 284 385 L 228 385 L 228 252 Z" 
+    fill="#131317" 
+    stroke="#131317"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
 </svg>
