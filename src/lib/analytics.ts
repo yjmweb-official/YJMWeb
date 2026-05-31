@@ -153,7 +153,10 @@ export const trackPageView = (title: string, path: string) => {
 /**
  * 2. WhatsApp Click Tracking (Floating, navbar, support, footer, etc.)
  */
-export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq' | 'contact') => {
+export const trackWhatsAppClick = (
+  buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq' | 'contact' | 'package',
+  details?: { package_name?: string; button_location?: string }
+) => {
   let mappedEvent = 'button_click_whatsapp_contact';
 
   switch (buttonType) {
@@ -167,6 +170,9 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
     case 'checkout':
       mappedEvent = 'button_click_whatsapp_checkout';
       break;
+    case 'package':
+      mappedEvent = 'button_click_whatsapp_package';
+      break;
     case 'support':
     case 'contact':
     case 'faq':
@@ -176,7 +182,12 @@ export const trackWhatsAppClick = (buttonType: 'floating' | 'support' | 'checkou
       mappedEvent = 'button_click_whatsapp_contact';
   }
 
-  sendGA4Event(mappedEvent, { button_type: buttonType });
+  sendGA4Event(mappedEvent, {
+    button_type: buttonType,
+    package_name: details?.package_name || '',
+    button_location: details?.button_location || buttonType,
+    ...details
+  });
 };
 
 /**

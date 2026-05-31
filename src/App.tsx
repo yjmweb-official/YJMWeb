@@ -92,14 +92,20 @@ export default function App() {
   // Expose global trigger for WhatsApp redirects with direct analytics tracking
   useEffect(() => {
     (window as any).triggerWhatsAppPopup = (
-      buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq' | 'contact',
-      url: string = 'https://wa.me/94776826937'
+      buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq' | 'contact' | 'package',
+      url: string = 'https://wa.me/94776826937',
+      details?: { package_name?: string; button_location?: string }
     ) => {
       // Instantly dispatch original button click tracking (keeps it robust)
-      trackWhatsAppClick(buttonType);
+      trackWhatsAppClick(buttonType, details);
 
-      // Immediately open WhatsApp directly
-      window.location.href = url;
+      try {
+        // Immediately open WhatsApp directly in a new tab/window
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } catch (err) {
+        console.error('Failed to open WhatsApp in a new tab, falling back to same tab redirection', err);
+        window.location.href = url;
+      }
     };
 
     return () => {
@@ -1043,7 +1049,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="pt-8 border-t border-white/5 mt-8">
+                      <div className="pt-8 border-t border-white/5 mt-8 space-y-3">
                         <button
                           onClick={() => handleSelectPackageForCheckout(pkg.id)}
                           id={`btn-select-pkg-${pkg.id}`}
@@ -1054,6 +1060,28 @@ export default function App() {
                           }`}
                         >
                           Configure {pkg.name.split(' ')[0]} Setup
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            let message = `Hello YJMWeb, I'm interested in the ${pkg.name}.`;
+                            const targetUrl = `https://wa.me/94776826937?text=${encodeURIComponent(message)}`;
+                            if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+                              (window as any).triggerWhatsAppPopup('package', targetUrl, {
+                                package_name: pkg.name,
+                                button_location: `pricing_card_${pkg.id}`
+                              });
+                            } else {
+                              trackWhatsAppClick('package', { package_name: pkg.name, button_location: `pricing_card_${pkg.id}` });
+                              window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                            }
+                          }}
+                          id={`btn-wa-inquire-${pkg.id}`}
+                          className="w-full py-2.5 rounded-xl font-mono text-[11px] font-medium tracking-wide transition-all text-neutral-400 hover:text-white bg-white/0 hover:bg-white/5 border border-transparent hover:border-white/5 cursor-pointer flex items-center justify-center gap-2 select-none"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-green-400" />
+                          Inquire on WhatsApp
                         </button>
                       </div>
                     </div>
@@ -1069,12 +1097,33 @@ export default function App() {
                     Need additional capabilities like Google Analytics set ups, compressed photograph updates or extra menu layouts? Custom add-ons can be enabled interactively on the Checkout section.
                   </p>
                 </div>
-                <button
-                  onClick={() => handleSelectPackageForCheckout('business')}
-                  className="px-6 py-3 bg-neon-blue/10 hover:bg-neon-blue/20 text-neon-blue hover:text-white border border-neon-blue/20 hover:border-neon-blue/30 text-xs font-mono rounded-lg transition-all"
-                >
-                  Configure Custom Blueprint
-                </button>
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto shrink-0">
+                  <button
+                    onClick={() => {
+                      let message = "Hello YJMWeb, I would like a custom website quotation.";
+                      const targetUrl = `https://wa.me/94776826937?text=${encodeURIComponent(message)}`;
+                      if (typeof window !== 'undefined' && (window as any).triggerWhatsAppPopup) {
+                        (window as any).triggerWhatsAppPopup('package', targetUrl, {
+                          package_name: 'Custom Package',
+                          button_location: 'custom_disclaimer_banner'
+                        });
+                      } else {
+                        trackWhatsAppClick('package', { package_name: 'Custom Package', button_location: 'custom_disclaimer_banner' });
+                        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                      }
+                    }}
+                    className="w-full sm:w-auto px-5 py-3 bg-neutral-900 hover:bg-white/5 border border-white/10 hover:border-white/20 text-neutral-300 hover:text-white text-xs font-mono rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-green-400" />
+                    Custom Quote Inquiry
+                  </button>
+                  <button
+                    onClick={() => handleSelectPackageForCheckout('business')}
+                    className="w-full sm:w-auto px-5 py-3 bg-neon-blue/10 hover:bg-neon-blue/20 text-neon-blue hover:text-white border border-neon-blue/20 hover:border-neon-blue/30 text-xs font-mono rounded-lg transition-all cursor-pointer"
+                  >
+                    Configure Custom Blueprint
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
