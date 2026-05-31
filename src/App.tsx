@@ -8,8 +8,7 @@ import {
   ArrowRight, Sparkles, MessageSquare, ShieldCheck, Cpu, 
   Utensils, Globe, Gauge, HelpCircle, Flame, Star, 
   BookOpen, Phone, MapPin, CheckCircle, Smartphone, 
-  Settings, ShoppingBag, Clock, Heart, Award, Key, Play,
-  ArrowLeft
+  Settings, ShoppingBag, Clock, Heart, Award, Key, Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -65,13 +64,11 @@ function PhilosophyFeatureCard({ title, description, dotClass }: { title: string
 }
 
 export default function App() {
-  const [whatsappRedirectUrl, setWhatsappRedirectUrl] = useState<string>('');
-  
   // Read path or hash on initialize to support deep linking and accurate initial GA reports
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.replace(/^\/|\/$/g, '');
-      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'faq', 'whatsapploading'];
+      const validTabs = ['landing', 'features', 'pricing', 'management', 'logos', 'checkout', 'contact', 'faq'];
       
       if (validTabs.includes(path)) {
         return path;
@@ -95,55 +92,20 @@ export default function App() {
   // Expose global trigger for WhatsApp redirects with direct analytics tracking
   useEffect(() => {
     (window as any).triggerWhatsAppPopup = (
-      buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq',
+      buttonType: 'floating' | 'support' | 'checkout' | 'navbar' | 'navbar_support' | 'hero' | 'footer' | 'faq' | 'contact',
       url: string = 'https://wa.me/94776826937'
     ) => {
       // Instantly dispatch original button click tracking (keeps it robust)
       trackWhatsAppClick(buttonType);
 
-      // Save URL and switch tab to start loading redirect flow
-      setWhatsappRedirectUrl(url);
-      setActiveTab('whatsapploading');
+      // Immediately open WhatsApp directly
+      window.location.href = url;
     };
 
     return () => {
       delete (window as any).triggerWhatsAppPopup;
     };
   }, []);
-
-  // Track WhatsApp Loading Page and handle final redirection with analytics callbacks
-  useEffect(() => {
-    if (activeTab === 'whatsapploading') {
-      const targetUrl = whatsappRedirectUrl || 'https://wa.me/94776826937';
-
-      // 1. WhatsApp Connection Started Event
-      if (window.gtag) {
-        window.gtag('event', 'whatsapp_connection_started', {
-          page_title: 'YJMWeb - Connecting to WhatsApp',
-          page_path: '/whatsapploading'
-        });
-        console.log('whatsapp_connection_started');
-      }
-
-      // 1.25 seconds delay for premium UX + absolute guarantee checkout event propagates
-      const timer = setTimeout(() => {
-        // 2. WhatsApp Redirect Completed Event
-        if (window.gtag) {
-          window.gtag('event', 'whatsapp_redirect_completed', {
-            page_title: 'YJMWeb - Connecting to WhatsApp',
-            page_path: '/whatsapploading',
-            target_url: targetUrl
-          });
-          console.log('whatsapp_redirect_completed');
-        }
-
-        // Final safe programmatic redirection
-        window.location.href = targetUrl;
-      }, 1250);
-
-      return () => clearTimeout(timer);
-    }
-  }, [activeTab, whatsappRedirectUrl]);
 
   // Synchronize dynamic URL update and send manual page views to Google Analytics
   useEffect(() => {
@@ -204,11 +166,6 @@ export default function App() {
         title = 'YJMWeb FAQ | Frequently Asked Questions';
         metaDesc = 'Find quick answers to common questions about our custom web design, secure hosting, monthly updates, and pricing plans.';
         canonical = `${PRIMARY_DOMAIN}/faq`;
-        break;
-      case 'whatsapploading':
-        title = 'YJMWeb - Connecting to WhatsApp...';
-        metaDesc = 'Successfully initiating direct secure link channel on WhatsApp. Please hold while we load your tailored chat workspace.';
-        canonical = `${PRIMARY_DOMAIN}/whatsapploading`;
         break;
     }
 
@@ -348,16 +305,6 @@ export default function App() {
       const targetPath = activeTab === 'landing' ? '/' : `/${activeTab}`;
       if (typeof window !== 'undefined' && window.location.pathname !== targetPath) {
         window.history.replaceState(null, '', targetPath);
-      }
-    }
-
-    // Noindex robots tag for whatsapploading page as requested by user
-    if (activeTab === 'whatsapploading') {
-      updateOrCreateMetaTag('name', 'robots', 'noindex');
-    } else {
-      const robotsEl = document.querySelector('meta[name="robots"]');
-      if (robotsEl) {
-        robotsEl.remove();
       }
     }
   }, [activeTab]);
@@ -1263,60 +1210,6 @@ export default function App() {
                 initialPackageId={selectedPackageId} 
                 onOrderSuccess={handleOrderSuccess} 
               />
-            </motion.div>
-          )}
-
-          {/* View Tab: WHATSAPP REDIRECTION LOADER SCREEN */}
-          {activeTab === 'whatsapploading' && (
-            <motion.div
-              key="whatsapploading-tab"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="min-h-[50vh] flex flex-col items-center justify-center py-16"
-              id="whatsapp-redirect-loader-view"
-            >
-              <div className="glass-panel max-w-md w-full p-8 rounded-3xl border-white/5 bg-neutral-950/80 backdrop-blur-md text-center space-y-6 relative overflow-hidden">
-                {/* Background decorative glow elements */}
-                <div className="absolute top-[-20%] left-[-20%] w-48 h-48 bg-green-500/10 rounded-full blur-[80px]" />
-                <div className="absolute bottom-[-20%] right-[-20%] w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px]" />
-                
-                {/* Glowing spinner with modern aesthetic */}
-                <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-                  <span className="absolute inset-0 rounded-full border-4 border-emerald-500/10" />
-                  <span className="absolute inset-0 rounded-full border-4 border-t-emerald-400 animate-spin" />
-                  <MessageSquare className="w-8 h-8 text-emerald-400 fill-emerald-400/10 stroke-[1.5]" />
-                </div>
-                
-                <div className="space-y-2">
-                  <h2 className="text-xl font-display font-medium text-white">Connecting Secure Hotline</h2>
-                  <p className="text-3xs font-mono uppercase tracking-widest text-emerald-400">YJMWeb Secure Forwarder</p>
-                </div>
-                
-                <p className="text-xs text-neutral-400 leading-relaxed max-w-xs mx-auto">
-                  Syncing diagnostics data and loading pre-addressed order parameters into your local client. Redirecting to WhatsApp...
-                </p>
-
-                {/* Subtle Progress Bar */}
-                <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full" style={{ width: '80%' }} />
-                </div>
-
-                {/* Return Back Button */}
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      setActiveTab('landing');
-                    }}
-                    className="px-5 py-2.5 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-full text-xs font-mono text-neutral-300 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-2 mx-auto select-none"
-                    id="btn-whatsapp-cancel"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
-                    Cancel &amp; Return Home
-                  </button>
-                </div>
-              </div>
             </motion.div>
           )}
 

@@ -139,9 +139,6 @@ export const trackPageView = (title: string, path: string) => {
     case 'faq':
       specificEvent = 'page_view_faq';
       break;
-    case 'whatsapploading':
-      specificEvent = 'page_view_whatsapp_loading';
-      break;
     default:
       specificEvent = 'page_view_home';
   }
